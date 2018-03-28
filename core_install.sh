@@ -54,8 +54,9 @@ read -p "Press Enter to continue..."
 ###########################
 
 # Build stress-ng
-git clone git://kernel.ubuntu.com/cking/stress-ng.git /tmp/
-make -C /tmp/stress-ng && sudo cp /tmp/stress-ng/stress-ng /tmp/ezremaster/extract/usr/bin/
+#git clone git://kernel.ubuntu.com/cking/stress-ng.git /tmp/
+#make -C /tmp/stress-ng && sudo cp /tmp/stress-ng/stress-ng /tmp/ezremaster/extract/usr/bin/
+sudo cp /tmp/stress-ng /tmp/ezremaster/extract/usr/bin/
 
 # Edit the isolinux.cfg file to change the boot timeout from 300 (30 seconds) to 10 (1 second)
 #sudo cp -f /tmp/core_install/isolinux.cfg /tmp/ezremaster/image/boot/isolinux/isolinux.cfg
