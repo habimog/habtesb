@@ -78,6 +78,12 @@ sudo chmod 600 /tmp/ezremaster/extract/usr/local/etc/ssh/ssh_host*key
 sudo cp /tmp/ezremaster/extract/opt/bootlocal.sh /tmp/ezremaster/extract/opt/bootlocal.sh.backup
 sudo echo "/usr/local/etc/init.d/openssh start" >> /tmp/ezremaster/extract/opt/bootlocal.sh
 
+# build stress-ng
+mkdir /tmp/stress-ng
+git clone git clone git://kernel.ubuntu.com/cking/stress-ng.git /tmp/stress-ng
+cd /tmp/stress-ng && make && sudo cp /tmp/stress-ng/stress-ng /tmp/ezremaster/extract/usr/bin/
+cd /tmp/
+
 # Start custom workload on boot
 sudo cp /tmp/workload.py /tmp/ezremaster/extract/opt/
 sudo chmod +x /tmp/ezremaster/extract/opt/workload.py
