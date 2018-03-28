@@ -32,7 +32,7 @@
 #    /tmp/core_install.sh 
 
 # Install openssh and ezremaster
-tce-load -iw openssh.tcz ezremaster.tcz python3.4.tcz        
+tce-load -iw openssh.tcz ezremaster.tcz python3.4.tcz gcc.tcz compiletc.tcz make.tcz       
            
 # Start the SSH server
 sudo /usr/local/etc/init.d/openssh start
