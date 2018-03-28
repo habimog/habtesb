@@ -60,7 +60,7 @@ class Client(object):
 	def run(self):
 		while True:
 			# VM wakes randomly
-			rand_time = random.randint(1, 20)
+			rand_time = random.randint(1, 100)
 			print("Rand Time = {}".format(rand_time))
 			time.sleep(rand_time)
 			
@@ -80,35 +80,41 @@ class Client(object):
 
 			# Receive response
 			print("waiting to receive")
-			data, server = self.sock.recvfrom(4096)
-			server_message = json.loads(data.decode('utf-8'))
-			print("received: {} from {}".format(server_message, server))
-
-			# Process and make a decision
 			try:
-				hostTemp = server_message[hostName]
-				avgTemp = sum(server_message.values()) / len(server_message)
-				migrate = True if hostTemp > avgTemp else False
-				print("migrate? {}, AvgTemp = {}, HostTemp = {}".format(migrate, avgTemp, hostTemp))
+				self.sock.settimeout(100.0)
+				data, server = self.sock.recvfrom(512)
+				self.sock.settimeout(None)
+				server_message = json.loads(data.decode('utf-8'))
+				print("received: {} from {}".format(server_message, server))
 
-				if(migrate):
-					# Determine destination
-					if hostName in server_message:
-						del server_message[hostName]
-					destination = min(server_message, key=server_message.get)
+				# Process and make a decision
+				try:
+					hostTemp = server_message[hostName]
+					avgTemp = sum(server_message.values()) / len(server_message)
+					migrate = True if hostTemp > avgTemp else False
+					print("migrate? {}, AvgTemp = {}, HostTemp = {}".format(migrate, avgTemp, hostTemp))
 
-					# Send Migration Request
-					self.client_message["request"]["migration"] = True
-					self.client_message["request"]["temperature"] = False
-					self.client_message["vm"]["mac"] = getVmMac()
-					self.client_message["vm"]["target"] = destination
-					print("sending: {} to {}".format(self.client_message, destination))
-					self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
+					if(migrate):
+						# Determine destination
+						if hostName in server_message:
+							del server_message[hostName]
+						destination = min(server_message, key=server_message.get)
+
+						# Send Migration Request
+						self.client_message["request"]["migration"] = True
+						self.client_message["request"]["temperature"] = False
+						self.client_message["vm"]["mac"] = getVmMac()
+						self.client_message["vm"]["target"] = destination
+						print("sending: {} to {}".format(self.client_message, destination))
+						self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 		
-					# Sleep for 10 sec, for migration to complete
-					time.sleep(10)
+						# Sleep for 10 sec, for migration to complete
+						time.sleep(10)
+				except:
+					print("An unexpected error occurred")
+
 			except:
-				print("An unexpected error occurred")
+				print("Socket timeout")
 
 '''
 	Main
