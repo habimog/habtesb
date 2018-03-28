@@ -60,7 +60,7 @@ class Client(object):
 	def run(self):
 		while True:
 			# VM wakes randomly
-			rand_time = random.randint(1, 100)
+			rand_time = random.randint(20, 150)
 			print("Rand Time = {}".format(rand_time))
 			time.sleep(rand_time)
 			
@@ -81,7 +81,7 @@ class Client(object):
 			# Receive response
 			print("waiting to receive")
 			try:
-				self.sock.settimeout(100.0)
+				self.sock.settimeout(5.0)
 				data, server = self.sock.recvfrom(512)
 				self.sock.settimeout(None)
 				server_message = json.loads(data.decode('utf-8'))
