@@ -1,3 +1,6 @@
+#!/usr/local/bin/python3.4
+# -*- coding: utf-8 -*-
+
 from collections import deque
 from threading import Timer
 from random import shuffle
