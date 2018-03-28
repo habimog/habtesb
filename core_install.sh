@@ -53,6 +53,10 @@ read -p "Press Enter to continue..."
 # Modifying the new build #
 ###########################
 
+# Build stress-ng
+git clone git clone git://kernel.ubuntu.com/cking/stress-ng.git /tmp/
+make -C /tmp/stress-ng && sudo cp /tmp/stress-ng/stress-ng /tmp/ezremaster/extract/usr/bin/
+
 # Edit the isolinux.cfg file to change the boot timeout from 300 (30 seconds) to 10 (1 second)
 #sudo cp -f /tmp/core_install/isolinux.cfg /tmp/ezremaster/image/boot/isolinux/isolinux.cfg
 sudo cp /tmp/ezremaster/image/boot/isolinux/isolinux.cfg /tmp/ezremaster/image/boot/isolinux/isolinux.cfg.backup
@@ -78,12 +82,6 @@ sudo chmod 600 /tmp/ezremaster/extract/usr/local/etc/ssh/ssh_host*key
 sudo cp /tmp/ezremaster/extract/opt/bootlocal.sh /tmp/ezremaster/extract/opt/bootlocal.sh.backup
 sudo echo "/usr/local/etc/init.d/openssh start" >> /tmp/ezremaster/extract/opt/bootlocal.sh
 
-# build stress-ng
-mkdir /tmp/stress-ng
-git clone git clone git://kernel.ubuntu.com/cking/stress-ng.git /tmp/stress-ng
-cd /tmp/stress-ng && make && sudo cp /tmp/stress-ng/stress-ng /tmp/ezremaster/extract/usr/bin/
-cd /tmp/
-
 # Start custom workload on boot
 sudo cp /tmp/workload.py /tmp/ezremaster/extract/opt/
 sudo chmod +x /tmp/ezremaster/extract/opt/workload.py
@@ -93,7 +91,7 @@ sudo cp /tmp/client.py /tmp/ezremaster/extract/opt/
 sudo chmod +x /tmp/ezremaster/extract/opt/client.py
 sudo echo "/opt/client.py &" >> /tmp/ezremaster/extract/opt/bootlocal.sh
 
-#put bootlocal in .filetool.lst
+# Put bootlocal in .filetool.lst
 sudo echo "/opt/bootlocal.sh" >> /tmp/ezremaster/extract/opt/.filetool.lst
 
 # Give the "tc" user a password
