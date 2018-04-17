@@ -101,7 +101,7 @@ if __name__ == "__main__":
 	
 	# Get calibration temperature 
 	initialTemp = calibrate.Calibrate(600).getCalibrationTemp() 
-	maxTemp = 1000
+	maxTemp = 100
 	logging.info("Initial Average Host Temperature = {} and maxTemp = {}".format(initialTemp, maxTemp))
 
 	# Start Server 
