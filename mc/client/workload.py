@@ -27,5 +27,5 @@ def job(load, timeout):
 	cmd = "stress-ng --cpu 1 --cpu-method matrixprod --cpu-load %s --timeout %s &" % (load, timeout)
 	output = subprocess.check_call(cmd, shell=True)
 
-task = PeriodicTask(interval=120, callback=job)
+task = PeriodicTask(interval=180, callback=job)
 task.run()
