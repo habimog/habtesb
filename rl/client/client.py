@@ -28,7 +28,7 @@ class Client():
 			# Get host name and ip
 			hostName = getHostName()
 			ip = getHostIp(hostName)
-			print('VM is on: {}'.format((ip, self.port)))
+			print('VM is on host: {}, ip: {}, port: {}'.format((hostName, ip, self.port)))
 
 			# Choose action
 			action = self.rlAgent.takeAction()
