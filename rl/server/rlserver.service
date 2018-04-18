@@ -1,0 +1,11 @@
+[Unit]
+Description=VM manager 
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/usr/bin/python3 /home/habi/rl/server/server.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
