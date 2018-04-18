@@ -84,6 +84,11 @@ sudo cp /tmp/ezremaster/extract/opt/bootlocal.sh /tmp/ezremaster/extract/opt/boo
 sudo echo "/usr/local/etc/init.d/openssh start" >> /tmp/ezremaster/extract/opt/bootlocal.sh
 
 # Start custom workload on boot
+#sudo cp /tmp/workload.py /tmp/ezremaster/extract/opt/ 
+#sudo chmod +x /tmp/ezremaster/extract/opt/workload.py
+#sudo echo "/opt/workload.py &" >> /tmp/ezremaster/extract/opt/bootlocal.sh
+
+# Start custom script on boot
 sudo cp /tmp/script.sh /tmp/ezremaster/extract/opt/
 sudo chmod +x /tmp/ezremaster/extract/opt/script.sh
 sudo echo "/opt/script.sh &" >> /tmp/ezremaster/extract/opt/bootlocal.sh
