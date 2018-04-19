@@ -30,7 +30,7 @@ figVms.xaxis.axis_label = "time(sec)"
 figVms.yaxis.axis_label = "VM numbers"
 figVms.y_range.start = 0
 figVms.y_range.end = 60
-figVms.line(source=sourceVms, x="x", y="y", line_width=2, alpha=.85, color='green')
+figVms.line(source=sourceVms, x="x", y="y", line_width=2, alpha=.85, color=SERVER_COLOR[host])
 
 # Get calibration temperature
 calibrationTemp = float(sys.argv[1]) #calibrate.Calibrate(600).getCalibrationTemp()
