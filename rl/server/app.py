@@ -20,7 +20,7 @@ figTemp = figure(x_axis_type="datetime", title="%s Temperature"%(host), tools=TO
 figTemp.xaxis.axis_label = "time(sec)"
 figTemp.yaxis.axis_label = "NUMA Node Temperature"
 figTemp.y_range.start = 0
-figTemp.y_range.end = 80
+figTemp.y_range.end = 60
 figTemp.line(source=sourceTemp, x="x", y="y", line_width=2, alpha=.85, color=SERVER_COLOR[host])
 
 # Plot VMs Numbers
