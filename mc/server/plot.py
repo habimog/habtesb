@@ -104,7 +104,7 @@ if __name__ == "__main__":
 	with open('/var/tmp/plot.log','w'): pass
 	
 	# Get calibration temperature
-	initialTemp = calibrate.Calibrate(600).getCalibrationTemp() 
+	initialTemp = calibrate.Calibrate(10).getCalibrationTemp() 
 	logging.info("Initial Average Host Temperature = {}".format(initialTemp))
 
 	# Start the server Manager
