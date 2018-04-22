@@ -26,7 +26,7 @@ class Server(object):
 		signal.signal(signal.SIGINT, self._signal_handler)
 
 		# Server message containing the temperature of all the servers
-		self.server_message = {} #SERVER_MESSAGE
+		self.server_message = SERVER_MESSAGE
 
 		# Python create mutex
 		self.my_mutex = threading.Lock()
@@ -34,19 +34,23 @@ class Server(object):
 		# Create a UDP socket and bind the socket to the port
 		self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.plot_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		
 		# Ports
 		self.client_port = 10000
 		self.server_port = 10001
+		self.plot_port = 10002
 
 		#print('starting up on {} port {}'.format(*server_address))
 		self.client_socket.bind(("", self.client_port))
 		self.server_socket.bind(("", self.server_port))
+		self.plot_socket.bind(("", self.plot_port))
 
 	def _signal_handler(self, signal, frame):
 		logging.info('Signal Interrupt Caught!')
 		self.client_socket.close()
 		self.server_socket.close()
+		self.plot_socket.close()
 		sys.exit(0)
 
 	def __del__(self):
@@ -66,15 +70,23 @@ class Server(object):
 		clientThread.start()
 
 		plotThread.join()
-		clientThread.join()
 		serverThread.join()
+		clientThread.join()
 
 	def _handlePlot(self):
 		logging.debug("---------------------- handlePlot ---------------")
-		appPath = os.path.dirname(os.path.realpath(__file__))
-		appPort = SERVER_PLOT_PORT[getHostName()]
-		cmd = "bokeh serve --allow-websocket-origin=localhost:%s %s/app.py --args %s" % (appPort, appPath, self.calibrationTemp) 
-		subprocess.check_call(cmd, shell=True)
+		logging.info("waiting to receive server plot data request")
+		data, address = self.plot_socket.recvfrom(512)
+		logging.info("Received server plot data request")
+
+		# Server plot data
+		plot_data = SERVER_PLOT_DATA
+		hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
+		plot_data["hostTemp"] = hostTemp if hostTemp >= 0 else 0
+		plot_data["numVms"] = getNumberOfVms()
+
+		sent = self.plot_socket.sendto(json.dumps(plot_data).encode('utf-8'), address)
+		logging.info("Sent {} to {}".format(plot_data, address))
 		
 	def _handleServer(self):
 		while True:

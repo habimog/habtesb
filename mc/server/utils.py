@@ -26,10 +26,9 @@ SERVER_MESSAGE = {
         "trident3.vlab.cs.hioa.no" : 0.0
 }
 
-SERVER_PLOT_PORT = {
-        "trident1.vlab.cs.hioa.no" : 5001,
-        "trident2.vlab.cs.hioa.no" : 5002,
-        "trident3.vlab.cs.hioa.no" : 5003
+SERVER_PLOT_DATA = {
+        "hostTemp" : 0.0,
+        "numVms" : 0
 }
 
 # Get VM name from MAC Address
