@@ -82,7 +82,7 @@ class Server(object):
 
 			# Server plot data
 			logging.info("Received server plot data request")
-			plotData = SERVER_PLOT_DATA
+			plotData = {} #SERVER_PLOT_DATA
 			hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
 			plotData["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
 			plotData["numVms"] = getNumberOfVms()

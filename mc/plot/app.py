@@ -5,7 +5,6 @@ from bokeh.models import ColumnDataSource
 import socket
 import json
 from datetime import datetime
-from copy import deepcopy
 #from .server.utils import SERVER_PLOT_DATA
 
 SERVERS = {
@@ -20,12 +19,6 @@ SERVER_PLOT_DATA = {
 }
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
-
-plotData = {
-	"trident1.vlab.cs.hioa.no" : deepcopy(SERVER_PLOT_DATA),
-	"trident2.vlab.cs.hioa.no" : deepcopy(SERVER_PLOT_DATA),
-	"trident3.vlab.cs.hioa.no" : deepcopy(SERVER_PLOT_DATA)
-}
 
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
@@ -60,15 +53,13 @@ figVms.inverted_triangle(source=sourceVms, x="x", y="trident3", legend="tr3", si
 figVms.line(source=sourceVms, x="x", y="trident3", legend="tr3", alpha=.85, color="red")
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+port = 10002
 def _getPlotData():
 	print("Get Plot Data")
-	server_message = deepcopy(plotData)
+	server_message = {}
 
-	for key in plotData:
+	for host, ip in SERVERS.items():
 		try:
-			ip = SERVERS[key]
-			port = 10002
-
 			# Request server plot data 
 			sock.sendto(json.dumps(SERVER_PLOT_DATA).encode('utf-8'), (ip, port))
 			print("sent server plot data request to {}".format((ip, port)))
@@ -78,8 +69,8 @@ def _getPlotData():
 			sock.settimeout(5.0)
 			data, address = sock.recvfrom(512)
 			sock.settimeout(None)
-			server_message[ip] = json.loads(data.decode('utf-8'))
-			print("received: {} from {}".format(server_message[ip], address))
+			server_message[host] = json.loads(data.decode('utf-8'))
+			print("received: {} from {}".format(server_message[host], address))
 		except:
 			print("Socket timeout for {}".format((ip, port)))
 
@@ -88,25 +79,28 @@ def _getPlotData():
 
 def update():
 	print("------------------------ Update -------------------")
-
+	
 	# Request data
 	data = _getPlotData()
-
+	print("data = {}".format(data))
+	
 	# x-axis data
 	x = datetime.now()	
 
 	# Update Temperature
-	trident1Temp = data["trident1.vlab.cs.hioa.no"]["hostTemp"]
-	trident2Temp = data["trident2.vlab.cs.hioa.no"]["hostTemp"] 
-	trident3Temp = data["trident3.vlab.cs.hioa.no"]["hostTemp"]
+	trident1Temp = data["trident1.vlab.cs.hioa.no"]["hostTemp"] if data else 0.0
+	trident2Temp = data["trident2.vlab.cs.hioa.no"]["hostTemp"] if data else 0.0
+	trident3Temp = data["trident3.vlab.cs.hioa.no"]["hostTemp"] if data else 0.0
+	#print("trident1Temp = {}, trident2Temp = {}, trident3Temp = {}".format(trident1Temp, trident2Temp, trident3Temp))
 
 	temp_data = dict(x=[x], trident1=[trident1Temp], trident2=[trident2Temp], trident3=[trident3Temp])
 	sourceTemp.stream(temp_data, rollover=100)
 
 	# Update VMs Number
-	trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] 	
-	trident2numVms = data["trident2.vlab.cs.hioa.no"]["numVms"] 
-	trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] 
+	trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if data else 0.0	
+	trident2numVms = data["trident2.vlab.cs.hioa.no"]["numVms"] if data else 0.0
+	trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if data else 0.0
+	#print("trident1numVms = {}, trident2numVms = {}, trident3numVms = {}".format(trident1numVms, trident2numVms, trident3numVms))
 
 	vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
 	sourceVms.stream(vms_data, rollover=100)
