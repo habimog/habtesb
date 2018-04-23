@@ -5,6 +5,7 @@ import socket
 import json
 import threading
 import time
+import sys
 import os
 import signal
 import logging
@@ -26,7 +27,7 @@ class Server(object):
 		signal.signal(signal.SIGINT, self._signal_handler)
 
 		# Server message containing the temperature of all the servers
-		self.server_message = SERVER_MESSAGE
+		self.server_message = {} #SERVER_MESSAGE
 
 		# Python create mutex
 		self.my_mutex = threading.Lock()
@@ -69,29 +70,30 @@ class Server(object):
 		clientThread = threading.Thread(target=self._handleClient)
 		clientThread.start()
 
-		plotThread.join()
-		serverThread.join()
 		clientThread.join()
+		serverThread.join()
+		plotThread.join()
 
 	def _handlePlot(self):
-		logging.debug("---------------------- handlePlot ---------------")
-		logging.info("waiting to receive server plot data request")
-		data, address = self.plot_socket.recvfrom(512)
-		logging.info("Received server plot data request")
+		while True:
+			logging.debug("---------------------- handlePlot ---------------")
+			logging.info("waiting to receive server plot data request")
+			data, address = self.plot_socket.recvfrom(512)
 
-		# Server plot data
-		plot_data = SERVER_PLOT_DATA
-		hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
-		plot_data["hostTemp"] = hostTemp if hostTemp >= 0 else 0
-		plot_data["numVms"] = getNumberOfVms()
+			# Server plot data
+			logging.info("Received server plot data request")
+			plotData = SERVER_PLOT_DATA
+			hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
+			plotData["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
+			plotData["numVms"] = getNumberOfVms()
 
-		sent = self.plot_socket.sendto(json.dumps(plot_data).encode('utf-8'), address)
-		logging.info("Sent {} to {}".format(plot_data, address))
+			sent = self.plot_socket.sendto(json.dumps(plotData).encode('utf-8'), address)
+			logging.info("Sent {} to {}".format(plotData, address))
 		
 	def _handleServer(self):
 		while True:
 			logging.debug("---------------------- handleServer ---------------")
-			time.sleep(1)
+			time.sleep(5)
 
 			host = getHostName()
 			servers = list(SERVERS.keys())
@@ -157,12 +159,15 @@ class Server(object):
 
 
 if __name__ == "__main__":
+	logging.info("Server Started")
+
 	# Clear Log Content
 	with open('/var/tmp/server.log','w'): pass
 	
 	# Get calibration temperature
 	initialTemp = calibrate.Calibrate(600).getCalibrationTemp() 
 	logging.info("Initial Average Host Temperature = {}".format(initialTemp))
+	print("Initial Average Host Temperature = {}".format(initialTemp))
 
-	# Start the server Manager
+	# Start the Server
 	Server(initialTemp).run()

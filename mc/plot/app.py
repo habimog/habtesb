@@ -5,6 +5,7 @@ from bokeh.models import ColumnDataSource
 import socket
 import json
 from datetime import datetime
+from copy import deepcopy
 #from .server.utils import SERVER_PLOT_DATA
 
 SERVERS = {
@@ -21,9 +22,9 @@ SERVER_PLOT_DATA = {
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
 
 plotData = {
-	"trident1.vlab.cs.hioa.no" : SERVER_PLOT_DATA,
-	"trident2.vlab.cs.hioa.no" : SERVER_PLOT_DATA,
-	"trident3.vlab.cs.hioa.no" : SERVER_PLOT_DATA
+	"trident1.vlab.cs.hioa.no" : deepcopy(SERVER_PLOT_DATA),
+	"trident2.vlab.cs.hioa.no" : deepcopy(SERVER_PLOT_DATA),
+	"trident3.vlab.cs.hioa.no" : deepcopy(SERVER_PLOT_DATA)
 }
 
 # Plot Temperature
@@ -58,33 +59,36 @@ figVms.line(source=sourceVms, x="x", y="trident2", legend="tr2", alpha=.85, colo
 figVms.inverted_triangle(source=sourceVms, x="x", y="trident3", legend="tr3", size=10, alpha=.85, color="red")
 figVms.line(source=sourceVms, x="x", y="trident3", legend="tr3", alpha=.85, color="red")
 
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 def _getPlotData():
-	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	server_message = plotData
+	print("Get Plot Data")
+	server_message = deepcopy(plotData)
 
-	for key in server_message:
+	for key in plotData:
 		try:
 			ip = SERVERS[key]
 			port = 10002
 
 			# Request server plot data 
 			sock.sendto(json.dumps(SERVER_PLOT_DATA).encode('utf-8'), (ip, port))
-			print("sent server plot data request format  to {}".format((ip, port)))
+			print("sent server plot data request to {}".format((ip, port)))
 
 			# Receive response
 			print("waiting to receive")
 			sock.settimeout(5.0)
-			data, server = sock.recvfrom(512)
+			data, address = sock.recvfrom(512)
 			sock.settimeout(None)
 			server_message[ip] = json.loads(data.decode('utf-8'))
-			print("received: {} from {}".format(server_message[ip], server))
+			print("received: {} from {}".format(server_message[ip], address))
 		except:
-			print("Socket timeout")
+			print("Socket timeout for {}".format((ip, port)))
 
 	return server_message
 			
 
 def update():
+	print("------------------------ Update -------------------")
+
 	# Request data
 	data = _getPlotData()
 
@@ -107,7 +111,7 @@ def update():
 	vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
 	sourceVms.stream(vms_data, rollover=100)
 
-# Add a periodic callback to be run every 10 second
+# Add a periodic callback to be run every 15 second
 curdoc().add_root(figTemp)
 curdoc().add_root(figVms)
-curdoc().add_periodic_callback(update, 10000)
+curdoc().add_periodic_callback(update, 15000)
