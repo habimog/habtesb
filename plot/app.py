@@ -5,20 +5,7 @@ from bokeh.models import ColumnDataSource
 import socket
 import json
 from datetime import datetime
-#from .server.utils import SERVER_PLOT_DATA
-
-SERVERS = {
-	"trident1.vlab.cs.hioa.no" : "128.39.120.89",
-	"trident2.vlab.cs.hioa.no" : "128.39.120.90",
-	"trident3.vlab.cs.hioa.no" : "128.39.120.91"
-}
-
-SERVER_PLOT_DATA = {
-        "hostTemp" : 0.0,
-        "numVms" : 0
-}
-
-TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
+from utils import *
 
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
@@ -27,14 +14,15 @@ figTemp.xaxis.axis_label = "time(sec)"
 figTemp.yaxis.axis_label = "NUMA Node Temperature"
 #figTemp.y_range.start = 0
 #figTemp.y_range.end = 60
-figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend="tr1", size=10, alpha=.85, color="peru")
+figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend="tr1", size=7, alpha=.85, color="peru")
 figTemp.line(source=sourceTemp, x="x", y="trident1", legend="tr1", alpha=.85, color="peru")
 
-figTemp.asterisk(source=sourceTemp, x="x", y="trident2", legend="tr2", size=10, alpha=.85, color="blue")
+figTemp.asterisk(source=sourceTemp, x="x", y="trident2", legend="tr2", size=7, alpha=.85, color="blue")
 figTemp.line(source=sourceTemp, x="x", y="trident2", legend="tr2", alpha=.85, color="blue")
 
-figTemp.inverted_triangle(source=sourceTemp, x="x", y="trident3", legend="tr3", size=10, alpha=.85, color="red")
+figTemp.inverted_triangle(source=sourceTemp, x="x", y="trident3", legend="tr3", size=7, alpha=.85, color="red")
 figTemp.line(source=sourceTemp, x="x", y="trident3", legend="tr3", alpha=.85, color="red")
+figTemp.legend.location = "top_left"
 
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
@@ -43,19 +31,19 @@ figVms.xaxis.axis_label = "time(sec)"
 figVms.yaxis.axis_label = "VM numbers"
 #figVms.y_range.start = 0
 #figVms.y_range.end = 60
-figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend="tr1", size=10,alpha=.85, color="peru")
+figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend="tr1", size=7, alpha=.85, color="peru")
 figVms.line(source=sourceVms, x="x", y="trident1", legend="tr1", alpha=.85, color="peru")
 
-figVms.asterisk(source=sourceVms, x="x", y="trident2", legend="tr2", size=10, alpha=.85, color="blue")
+figVms.asterisk(source=sourceVms, x="x", y="trident2", legend="tr2", size=7, alpha=.85, color="blue")
 figVms.line(source=sourceVms, x="x", y="trident2", legend="tr2", alpha=.85, color="blue")
 
-figVms.inverted_triangle(source=sourceVms, x="x", y="trident3", legend="tr3", size=10, alpha=.85, color="red")
+figVms.inverted_triangle(source=sourceVms, x="x", y="trident3", legend="tr3", size=7, alpha=.85, color="red")
 figVms.line(source=sourceVms, x="x", y="trident3", legend="tr3", alpha=.85, color="red")
+figVms.legend.location = "top_left"
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 port = 10002
 def _getPlotData():
-	print("Get Plot Data")
 	server_message = {}
 
 	for host, ip in SERVERS.items():
@@ -82,7 +70,6 @@ def update():
 	
 	# Request data
 	data = _getPlotData()
-	print("data = {}".format(data))
 	
 	# x-axis data
 	x = datetime.now()	
@@ -91,7 +78,6 @@ def update():
 	trident1Temp = data["trident1.vlab.cs.hioa.no"]["hostTemp"] if data else 0.0
 	trident2Temp = data["trident2.vlab.cs.hioa.no"]["hostTemp"] if data else 0.0
 	trident3Temp = data["trident3.vlab.cs.hioa.no"]["hostTemp"] if data else 0.0
-	#print("trident1Temp = {}, trident2Temp = {}, trident3Temp = {}".format(trident1Temp, trident2Temp, trident3Temp))
 
 	temp_data = dict(x=[x], trident1=[trident1Temp], trident2=[trident2Temp], trident3=[trident3Temp])
 	sourceTemp.stream(temp_data, rollover=100)
@@ -100,7 +86,6 @@ def update():
 	trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if data else 0.0	
 	trident2numVms = data["trident2.vlab.cs.hioa.no"]["numVms"] if data else 0.0
 	trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if data else 0.0
-	#print("trident1numVms = {}, trident2numVms = {}, trident3numVms = {}".format(trident1numVms, trident2numVms, trident3numVms))
 
 	vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
 	sourceVms.stream(vms_data, rollover=100)

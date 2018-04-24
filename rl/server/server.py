@@ -30,12 +30,18 @@ class Server():
 
 		# Create a UDP socket and bind the socket to the port
 		self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		self.plot_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		
 		self.client_port = 10000
+		self.plot_port = 10002
+		
 		self.client_socket.bind(("", self.client_port))
+		self.plot_socket.bind(("", self.plot_port))
 
 	def _signal_handler(self, signal, frame):
 		logging.info('Signal Interrupt Caught!')
 		self.client_socket.close()
+		self.plot_socket.close()
 		sys.exit(0)
 
 	def __del__(self):
@@ -50,15 +56,24 @@ class Server():
 		clientThread = threading.Thread(target=self._handleClient)
 		clientThread.start()
 
-		plotThread.join()
 		clientThread.join()
+		plotThread.join()
 
 	def _handlePlot(self):
-		logging.debug("---------------------- handlePlot ---------------")
-		appPath = "/home/habi/rl/server" #appPath = os.path.dirname(os.path.realpath(__file__))
-		appPort = SERVER_PLOT_PORT[getHostName()]
-		cmd = "bokeh serve --allow-websocket-origin=localhost:%s %s/app.py --args %s" % (appPort, appPath, self.calibrationTemp)
-		subprocess.check_call(cmd, shell=True)
+		while True:
+			logging.debug("---------------------- handlePlot ---------------")
+			logging.info("waiting to receive server plot data request")
+			data, address = self.plot_socket.recvfrom(512)
+
+			# Server plot data
+			logging.info("Received server plot data request")
+			plotData = {} #SERVER_PLOT_DATA
+			hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
+			plotData["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
+			plotData["numVms"] = getNumberOfVms()
+
+			sent = self.plot_socket.sendto(json.dumps(plotData).encode('utf-8'), address)
+			logging.info("Sent {} to {}".format(plotData, address))
 
 	def _handleClient(self):
 		while True:
