@@ -98,7 +98,7 @@ sudo chmod +x /tmp/ezremaster/extract/opt/client.py
 sudo echo "/opt/client.py &" >> /tmp/ezremaster/extract/opt/bootlocal.sh
 
 sudo cp /tmp/__init__.py /tmp/ezremaster/extract/opt/
-sudo cp /tmp/rl.py /tmp/ezremaster/extract/opt/
+#sudo cp /tmp/rl.py /tmp/ezremaster/extract/opt/
 sudo cp /tmp/utils.py /tmp/ezremaster/extract/opt/
 
 # Put bootlocal in .filetool.lst
