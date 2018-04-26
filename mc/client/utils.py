@@ -48,6 +48,6 @@ def getVmMac():
 	return ':'.join(("%012x" % mac)[i:i+2] for i in range(0, 12, 2))
 
 def getLoad():
-	load = subprocess.check_output('ps | grep stress-ng | head -1 | cut -d" " -f16', shell=True).decode('UTF-8').rstrip("\n")
+	load = subprocess.check_output('ps | grep stress-ng | head -1 | cut -d" " -f17', shell=True).decode('UTF-8').rstrip("\n")
 	
-	return load
+	return int(load)
