@@ -1,3 +1,6 @@
+#!/usr/local/bin/python3.4
+# -*- coding: utf-8 -*-
+
 from collections import deque
 from threading import Timer
 from random import shuffle
@@ -27,5 +30,5 @@ def job(load, timeout):
 	cmd = "stress-ng --cpu 1 --cpu-method matrixprod --cpu-load %s --timeout %s &" % (load, timeout)
 	output = subprocess.check_call(cmd, shell=True)
 
-task = PeriodicTask(interval=120, callback=job)
+task = PeriodicTask(interval=1800, callback=job)
 task.run()
