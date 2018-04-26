@@ -9,11 +9,11 @@ from utils import *
 
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figTemp = figure(x_axis_type="datetime", title="Temperature", tools=TOOLS, plot_width=800, plot_height=500)
+figTemp = figure(x_axis_type="datetime", title="Temperature", tools=TOOLS, plot_width=1500, plot_height=500)
 figTemp.xaxis.axis_label = "time(sec)"
 figTemp.yaxis.axis_label = "NUMA Node Temperature"
-#figTemp.y_range.start = 0
-#figTemp.y_range.end = 60
+figTemp.y_range.start = -5
+figTemp.y_range.end = 50
 figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend="tr1", size=7, alpha=.85, color="peru")
 figTemp.line(source=sourceTemp, x="x", y="trident1", legend="tr1", alpha=.85, color="peru")
 
@@ -26,11 +26,11 @@ figTemp.legend.location = "top_left"
 
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figVms = figure(x_axis_type="datetime", title="Number Of VMs", tools=TOOLS, plot_width=800, plot_height=400)
+figVms = figure(x_axis_type="datetime", title="Number Of VMs", tools=TOOLS, plot_width=1500, plot_height=400)
 figVms.xaxis.axis_label = "time(sec)"
 figVms.yaxis.axis_label = "VM numbers"
-#figVms.y_range.start = 0
-#figVms.y_range.end = 60
+figVms.y_range.start = -5
+figVms.y_range.end = 35
 figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend="tr1", size=7, alpha=.85, color="peru")
 figVms.line(source=sourceVms, x="x", y="trident1", legend="tr1", alpha=.85, color="peru")
 
@@ -80,7 +80,7 @@ def update():
 	trident3Temp = data["trident3.vlab.cs.hioa.no"]["hostTemp"] if data else 0.0
 
 	temp_data = dict(x=[x], trident1=[trident1Temp], trident2=[trident2Temp], trident3=[trident3Temp])
-	sourceTemp.stream(temp_data, rollover=100)
+	sourceTemp.stream(temp_data, rollover=1000)
 
 	# Update VMs Number
 	trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if data else 0.0	
@@ -88,7 +88,7 @@ def update():
 	trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if data else 0.0
 
 	vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
-	sourceVms.stream(vms_data, rollover=100)
+	sourceVms.stream(vms_data, rollover=1000)
 
 # Add a periodic callback to be run every 15 second
 curdoc().add_root(figTemp)
