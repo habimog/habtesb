@@ -100,15 +100,15 @@ def update():
 		sourceVms.stream(vms_data, rollover=1000)
 
 		# Update VM loads
-		#trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else 0	
-		#trident2VMloads = data["trident2.vlab.cs.hioa.no"]["vmLoads"] if "trident2.vlab.cs.hioa.no" in data else 0
-		#trident3VMloads = data["trident3.vlab.cs.hioa.no"]["vmLoads"] if "trident3.vlab.cs.hioa.no" in data else 0
+		trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else 0	
+		trident2VMloads = data["trident2.vlab.cs.hioa.no"]["vmLoads"] if "trident2.vlab.cs.hioa.no" in data else 0
+		trident3VMloads = data["trident3.vlab.cs.hioa.no"]["vmLoads"] if "trident3.vlab.cs.hioa.no" in data else 0
 
 		vmLoads = {}
-		vmLoads["25"] = 2 #trident1VMloads["25"] + trident2VMloads["25"] + trident3VMloads["25"]
-		vmLoads["50"] = 5 #trident1VMloads["50"] + trident2VMloads["50"] + trident3VMloads["50"]
-		vmLoads["75"] = 7 #trident1VMloads["75"] + trident2VMloads["75"] + trident3VMloads["75"]
-		vmLoads["100"] = 10 #trident1VMloads["100"] + trident2VMloads["100"] + trident3VMloads["100"]
+		vmLoads["25"] = trident1VMloads["25"] + trident2VMloads["25"] + trident3VMloads["25"]
+		vmLoads["50"] = trident1VMloads["50"] + trident2VMloads["50"] + trident3VMloads["50"]
+		vmLoads["75"] = trident1VMloads["75"] + trident2VMloads["75"] + trident3VMloads["75"]
+		vmLoads["100"] = trident1VMloads["100"] + trident2VMloads["100"] + trident3VMloads["100"]
 
 		figLoads.vbar(x=loads, top=[vmLoads["25"], vmLoads["50"], vmLoads["75"], vmLoads["100"]], width=0.5)
 
