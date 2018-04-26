@@ -29,6 +29,9 @@ class Server(object):
 		# Server message containing the temperature of all the servers
 		self.server_message = {} #SERVER_MESSAGE
 
+		# List of VMs running on server
+		self.vms = {} 
+
 		# Python create mutex
 		self.my_mutex = threading.Lock()
 
@@ -82,10 +85,15 @@ class Server(object):
 
 			# Server plot data
 			logging.info("Received server plot data request")
-			plotData = {} #SERVER_PLOT_DATA
+			plotData = SERVER_PLOT_DATA
 			hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
 			plotData["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
 			plotData["numVms"] = getNumberOfVms()
+
+			self.my_mutex.acquire()
+			for vm, load in self.vms.items():
+				plotData["vmLoads"][str(load)] += 1
+			self.my_mutex.release()
 
 			sent = self.plot_socket.sendto(json.dumps(plotData).encode('utf-8'), address)
 			logging.info("Sent {} to {}".format(plotData, address))
@@ -141,6 +149,12 @@ class Server(object):
 
 			if client_message["request"]["temperature"]:
 				self.my_mutex.acquire()
+				
+				# Save VM Load
+				vm = getVmName(client_message["vm"]["mac"])
+				self.vms[vm] = client_message["vm"]["load"]
+
+				# Send Response
 				sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
 				logging.info("Sent {} back to {}".format(self.server_message, address))
 				self.my_mutex.release()
@@ -154,6 +168,11 @@ class Server(object):
 				migrationThread.setDaemon(True)
 				migrationThread.start()
 				migrationThread.join()
+
+				# Delete VM Load
+				self.my_mutex.acquire()
+				del self.vms[vm]
+				self.my_mutex.release()
 			else:
 				logging.error("ERROR")
 

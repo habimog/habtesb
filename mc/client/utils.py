@@ -14,7 +14,8 @@ CLIENT_MESSAGE = {
 	},
 	"vm" : {
                 "mac" : "",
-                "target" : ""
+                "target" : "",
+				"load" : 0
         }
 }
 
@@ -45,3 +46,8 @@ def getHostIp(hostName):
 def getVmMac():
 	mac = get_mac()
 	return ':'.join(("%012x" % mac)[i:i+2] for i in range(0, 12, 2))
+
+def getLoad():
+	load = subprocess.check_output('ps | grep stress-ng | head -1 | cut -d" " -f16', shell=True).decode('UTF-8').rstrip("\n")
+	
+	return load

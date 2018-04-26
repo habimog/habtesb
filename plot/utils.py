@@ -8,7 +8,13 @@ SERVERS = {
 
 SERVER_PLOT_DATA = {
         "hostTemp" : 0.0,
-        "numVms" : 0
+        "numVms" : 0,
+	"vmLoads" : { 
+		"25"  : 0,
+		"50"  : 0,
+		"75"  : 0,
+		"100" : 0
+	}
 }
 
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"

@@ -10,7 +10,7 @@ from utils import *
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figTemp = figure(x_axis_type="datetime", title="Temperature", tools=TOOLS, plot_width=1500, plot_height=500)
-figTemp.xaxis.axis_label = "time(sec)"
+figTemp.xaxis.axis_label = "time(min)"
 figTemp.yaxis.axis_label = "NUMA Node Temperature"
 figTemp.y_range.start = -5
 figTemp.y_range.end = 50
@@ -27,7 +27,7 @@ figTemp.legend.location = "top_left"
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figVms = figure(x_axis_type="datetime", title="Number Of VMs", tools=TOOLS, plot_width=1500, plot_height=400)
-figVms.xaxis.axis_label = "time(sec)"
+figVms.xaxis.axis_label = "time(min)"
 figVms.yaxis.axis_label = "VM numbers"
 figVms.y_range.start = -5
 figVms.y_range.end = 35
@@ -41,6 +41,14 @@ figVms.inverted_triangle(source=sourceVms, x="x", y="trident3", legend="tr3", si
 figVms.line(source=sourceVms, x="x", y="trident3", legend="tr3", alpha=.85, color="red")
 figVms.legend.location = "top_left"
 
+# Plot VM Loads
+loads = ['25%', '50%', '75%', '100%']
+figLoads = figure(x_range=loads, plot_width=1500, plot_height=400, title="VM Loads Count")
+figLoads.vbar(x=loads, top=[0, 0, 0, 0], width=0.5)
+figLoads.xgrid.grid_line_color = None
+figLoads.y_range.start = 0
+
+# Get Plot Data
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 port = 10002
 def _getPlotData():
@@ -87,11 +95,25 @@ def update():
 		trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if "trident1.vlab.cs.hioa.no" in data else 0.0	
 		trident2numVms = data["trident2.vlab.cs.hioa.no"]["numVms"] if "trident2.vlab.cs.hioa.no" in data else 0.0
 		trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if "trident3.vlab.cs.hioa.no" in data else 0.0
-
+		
 		vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
 		sourceVms.stream(vms_data, rollover=1000)
+
+		# Update VM loads
+		#trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else 0	
+		#trident2VMloads = data["trident2.vlab.cs.hioa.no"]["vmLoads"] if "trident2.vlab.cs.hioa.no" in data else 0
+		#trident3VMloads = data["trident3.vlab.cs.hioa.no"]["vmLoads"] if "trident3.vlab.cs.hioa.no" in data else 0
+
+		vmLoads = {}
+		vmLoads["25"] = 2 #trident1VMloads["25"] + trident2VMloads["25"] + trident3VMloads["25"]
+		vmLoads["50"] = 5 #trident1VMloads["50"] + trident2VMloads["50"] + trident3VMloads["50"]
+		vmLoads["75"] = 7 #trident1VMloads["75"] + trident2VMloads["75"] + trident3VMloads["75"]
+		vmLoads["100"] = 10 #trident1VMloads["100"] + trident2VMloads["100"] + trident3VMloads["100"]
+
+		figLoads.vbar(x=loads, top=[vmLoads["25"], vmLoads["50"], vmLoads["75"], vmLoads["100"]], width=0.5)
 
 # Add a periodic callback to be run every 15 second
 curdoc().add_root(figTemp)
 curdoc().add_root(figVms)
+curdoc().add_root(figLoads)
 curdoc().add_periodic_callback(update, 15000)

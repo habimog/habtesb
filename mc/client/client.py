@@ -32,8 +32,9 @@ class Client(object):
 				# Request Temperature
 				self.client_message["request"]["temperature"] = True
 				self.client_message["request"]["migration"] = False
-				self.client_message["vm"]["mac"] = ""
-				self.client_message["vm"]["target"] = ""
+				self.client_message["vm"]["mac"] = getVmMac()
+				self.client_message["vm"]["target"] = hostName
+				self.client_message["vm"]["load"] = getLoad()
 				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 				print("sent: {}".format(self.client_message))
 
@@ -63,6 +64,7 @@ class Client(object):
 						self.client_message["request"]["temperature"] = False
 						self.client_message["vm"]["mac"] = getVmMac()
 						self.client_message["vm"]["target"] = destination
+						self.client_message["vm"]["load"] = getLoad()
 						self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 						print("sent: {} to {}".format(self.client_message, destination))
 			
