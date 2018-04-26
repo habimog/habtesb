@@ -71,24 +71,25 @@ def update():
 	# Request data
 	data = _getPlotData()
 	
-	# x-axis data
-	x = datetime.now()	
+	if data:
+		# x-axis data
+		x = datetime.now()	
 
-	# Update Temperature
-	trident1Temp = data["trident1.vlab.cs.hioa.no"]["hostTemp"] if data else 0.0
-	trident2Temp = data["trident2.vlab.cs.hioa.no"]["hostTemp"] if data else 0.0
-	trident3Temp = data["trident3.vlab.cs.hioa.no"]["hostTemp"] if data else 0.0
+		# Update Temperature
+		trident1Temp = data["trident1.vlab.cs.hioa.no"]["hostTemp"] if "trident1.vlab.cs.hioa.no" in data else 0.0
+		trident2Temp = data["trident2.vlab.cs.hioa.no"]["hostTemp"] if "trident2.vlab.cs.hioa.no" in data else 0.0
+		trident3Temp = data["trident3.vlab.cs.hioa.no"]["hostTemp"] if "trident3.vlab.cs.hioa.no" in data else 0.0
 
-	temp_data = dict(x=[x], trident1=[trident1Temp], trident2=[trident2Temp], trident3=[trident3Temp])
-	sourceTemp.stream(temp_data, rollover=1000)
+		temp_data = dict(x=[x], trident1=[trident1Temp], trident2=[trident2Temp], trident3=[trident3Temp])
+		sourceTemp.stream(temp_data, rollover=1000)
 
-	# Update VMs Number
-	trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if data else 0.0	
-	trident2numVms = data["trident2.vlab.cs.hioa.no"]["numVms"] if data else 0.0
-	trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if data else 0.0
+		# Update VMs Number
+		trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if "trident1.vlab.cs.hioa.no" in data else 0.0	
+		trident2numVms = data["trident2.vlab.cs.hioa.no"]["numVms"] if "trident2.vlab.cs.hioa.no" in data else 0.0
+		trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if "trident3.vlab.cs.hioa.no" in data else 0.0
 
-	vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
-	sourceVms.stream(vms_data, rollover=1000)
+		vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
+		sourceVms.stream(vms_data, rollover=1000)
 
 # Add a periodic callback to be run every 15 second
 curdoc().add_root(figTemp)
