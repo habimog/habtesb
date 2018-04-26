@@ -16,7 +16,8 @@ CLIENT_MESSAGE = {
         },
         "vm" : {
                 "mac" : "",
-                "target" : ""
+                "target" : "",
+		"load" : 0
         }
 }
 
@@ -28,7 +29,13 @@ SERVER_MESSAGE = {
 
 SERVER_PLOT_DATA = {
         "hostTemp" : 0.0,
-        "numVms" : 0
+        "numVms" : 0,
+	"vmLoads" : { 
+		"25"  : 0,
+		"50"  : 0,
+		"75"  : 0,
+		"100" : 0
+	}
 }
 
 # Get VM name from MAC Address
