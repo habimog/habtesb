@@ -153,7 +153,9 @@ class Server(object):
 				
 				# Save VM Load
 				vm = getVmName(client_message["vm"]["mac"])
-				self.vms[vm] = client_message["vm"]["load"]
+				vmLoad = client_message["vm"]["load"]
+				if vmLoad != 0:
+					self.vms[vm] = vmLoad
 
 				# Send Response
 				sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
