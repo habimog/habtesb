@@ -44,18 +44,20 @@ figVms.legend.location = "top_left"
 
 # Plot VM Loads
 loads = ['25%', '50%', '75%', '100%']
-figLoads = figure(x_range=loads, plot_width=1500, plot_height=400, title="VM Loads Count")
+figLoads = figure(x_range=loads, plot_width=1500, plot_height=400, title="VM Load Count")
 figLoads.vbar(x=loads, top=[0, 0, 0, 0], width=0.5)
 figLoads.xgrid.grid_line_color = None
+figLoads.xaxis.axis_label = "CPU Load (%)"
+figLoads.yaxis.axis_label = "Number of Loads"
 figLoads.y_range.start = 0
 
 # Get Plot Data
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 port = 10002
 def _getPlotData():
-	server_message = deepcopy(SERVER_PLOT_DATA)
-
+	server_message = {}
 	for host, ip in SERVERS.items():
+		server_message[host] = deepcopy(SERVER_PLOT_DATA)
 		try:
 			# Request server plot data 
 			sock.sendto(json.dumps(SERVER_PLOT_DATA).encode('utf-8'), (ip, port))

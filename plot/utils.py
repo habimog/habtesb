@@ -7,8 +7,8 @@ SERVERS = {
 }
 
 SERVER_PLOT_DATA = {
-        "hostTemp" : 0.0,
-        "numVms" : 0,
+	"hostTemp" : 0.0,
+	"numVms" : 0,
 	"vmLoads" : { 
 		"25"  : 0,
 		"50"  : 0,
