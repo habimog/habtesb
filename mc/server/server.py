@@ -10,6 +10,7 @@ import os
 import signal
 import logging
 from multiprocessing import Process
+from copy import deepcopy
 from utils import *
 import calibrate
 
@@ -27,7 +28,7 @@ class Server(object):
 		signal.signal(signal.SIGINT, self._signal_handler)
 
 		# Server message containing the temperature of all the servers
-		self.server_message = {} #SERVER_MESSAGE
+		self.server_message = deepcopy(SERVER_MESSAGE)
 
 		# List of VMs running on server
 		self.vms = {} 
@@ -85,7 +86,7 @@ class Server(object):
 
 			# Server plot data
 			logging.info("Received server plot data request")
-			plotData = SERVER_PLOT_DATA
+			plotData = deepcopy(SERVER_PLOT_DATA)
 			hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
 			plotData["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
 			plotData["numVms"] = getNumberOfVms()

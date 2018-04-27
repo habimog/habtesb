@@ -5,6 +5,7 @@ from bokeh.models import ColumnDataSource
 import socket
 import json
 from datetime import datetime
+from copy import deepcopy
 from utils import *
 
 # Plot Temperature
@@ -52,7 +53,7 @@ figLoads.y_range.start = 0
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 port = 10002
 def _getPlotData():
-	server_message = {}
+	server_message = deepcopy(SERVER_PLOT_DATA)
 
 	for host, ip in SERVERS.items():
 		try:

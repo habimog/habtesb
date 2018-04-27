@@ -5,13 +5,14 @@ import socket
 import json
 import time
 import random
+from copy import deepcopy
 from utils import *
 
 ''' Client
 '''
 class Client(object):
 	def __init__(self):
-		self.client_message = CLIENT_MESSAGE
+		self.client_message = deepcopy(CLIENT_MESSAGE)
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.port = 10000
 		self.delta = 24 # delta temperature
