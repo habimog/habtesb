@@ -13,10 +13,10 @@ CLIENT_MESSAGE = {
 		"migration" : False
 	},
 	"vm" : {
-                "mac" : "",
-                "target" : "",
+		"mac" : "",
+		"target" : "",
 		"load" : 0
-        }
+    }
 }
 
 SERVER_MESSAGE = {
@@ -48,10 +48,12 @@ def getVmMac():
 	return ':'.join(("%012x" % mac)[i:i+2] for i in range(0, 12, 2))
 
 def getLoad():
-	load = subprocess.check_output('ps | grep stress-ng | head -1 | cut -d" " -f16', shell=True).decode('UTF-8').rstrip("\n")
+	load = subprocess.check_output("ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
+	print("Load = {}".format(load)
 	
 	try:
 		return int(load)
 	except:
 		print("Load not int")
 		return 0
+		

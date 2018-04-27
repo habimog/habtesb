@@ -21,13 +21,13 @@ class PeriodicTask(object):
 	def run(self):
 		load = self.load.pop()
 		self.load.appendleft(load)
-		self.callback(load, self.interval, **self.kwargs)
+		self.callback(self.interval, load, **self.kwargs)
 		t = Timer(self.interval, self.run)
 		t.daemon = self.daemon
 		t.start()
 
-def job(load, timeout):
-	cmd = "stress-ng --cpu 1 --cpu-method matrixprod --cpu-load %s --timeout %s &" % (load, timeout)
+def job(timeout, load):
+	cmd = "stress-ng --cpu 1 --cpu-method matrixprod --timeout %s --cpu-load %s &" % (timeout, load)
 	output = subprocess.check_call(cmd, shell=True)
 
 task = PeriodicTask(interval=1800, callback=job)
