@@ -16,7 +16,7 @@ CLIENT_MESSAGE = {
 		"mac" : "",
 		"target" : "",
 		"load" : 0
-    }
+	}
 }
 
 SERVER_MESSAGE = {
@@ -49,7 +49,7 @@ def getVmMac():
 
 def getLoad():
 	load = subprocess.check_output("ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
-	print("Load = {}".format(load)
+	print("Load = {}".format(load))
 	
 	try:
 		return int(load)

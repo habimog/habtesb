@@ -46,7 +46,6 @@ class Server(object):
 		self.server_port = 10001
 		self.plot_port = 10002
 
-		#print('starting up on {} port {}'.format(*server_address))
 		self.client_socket.bind(("", self.client_port))
 		self.server_socket.bind(("", self.server_port))
 		self.plot_socket.bind(("", self.plot_port))
@@ -108,19 +107,17 @@ class Server(object):
 			servers = list(SERVERS.keys())
 			servers.remove(str(host))
 
-			# Python acquire mutex: acquire the thread
-			# to keep waiting until the lock is released
+			# Python acquire mutex
 			self.my_mutex.acquire()
 			hostTemp = getHostTemp() - self.calibrationTemp
 			logging.debug("Host temerature = {}".format(hostTemp))
-			self.server_message[host] = hostTemp if hostTemp >= 0 else 0
+			self.server_message[host] = hostTemp if hostTemp >= 0.0 else 0.0
 			for server in servers:
 				server_address = (getIpFromHostName(server), self.server_port)
 				sent = self.server_socket.sendto(json.dumps(self.server_message).encode('utf-8'), server_address)
 				logging.info("Sent {} to {}".format(self.server_message, server_address))
 
-			# Python release mutex: release the thread
-                        # is done, we release the lock
+			# Python release mutex
 			self.my_mutex.release()
 			
 			for server in servers:

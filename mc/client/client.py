@@ -15,7 +15,7 @@ class Client(object):
 		self.client_message = deepcopy(CLIENT_MESSAGE)
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.port = 10000
-		self.delta = 24 # delta temperature
+		self.delta = 24.0 # delta temperature
 
 	def run(self):
 		while True:

@@ -60,7 +60,7 @@ def _getPlotData():
 		server_message[host] = deepcopy(SERVER_PLOT_DATA)
 		try:
 			# Request server plot data 
-			sock.sendto(json.dumps(SERVER_PLOT_DATA).encode('utf-8'), (ip, port))
+			sock.sendto(json.dumps(deepcopy(SERVER_PLOT_DATA)).encode('utf-8'), (ip, port))
 			print("sent server plot data request to {}".format((ip, port)))
 
 			# Receive response
@@ -95,17 +95,17 @@ def update():
 		sourceTemp.stream(temp_data, rollover=1000)
 
 		# Update VMs Number
-		trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if "trident1.vlab.cs.hioa.no" in data else 0.0	
-		trident2numVms = data["trident2.vlab.cs.hioa.no"]["numVms"] if "trident2.vlab.cs.hioa.no" in data else 0.0
-		trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if "trident3.vlab.cs.hioa.no" in data else 0.0
+		trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if "trident1.vlab.cs.hioa.no" in data else 0	
+		trident2numVms = data["trident2.vlab.cs.hioa.no"]["numVms"] if "trident2.vlab.cs.hioa.no" in data else 0
+		trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if "trident3.vlab.cs.hioa.no" in data else 0
 		
 		vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
 		sourceVms.stream(vms_data, rollover=1000)
 
 		# Update VM loads
-		trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else 0	
-		trident2VMloads = data["trident2.vlab.cs.hioa.no"]["vmLoads"] if "trident2.vlab.cs.hioa.no" in data else 0
-		trident3VMloads = data["trident3.vlab.cs.hioa.no"]["vmLoads"] if "trident3.vlab.cs.hioa.no" in data else 0
+		trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]	
+		trident2VMloads = data["trident2.vlab.cs.hioa.no"]["vmLoads"] if "trident2.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]
+		trident3VMloads = data["trident3.vlab.cs.hioa.no"]["vmLoads"] if "trident3.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]
 
 		vmLoads = {}
 		vmLoads["25"] = trident1VMloads["25"] + trident2VMloads["25"] + trident3VMloads["25"]
