@@ -1,6 +1,7 @@
 from bokeh.io import curdoc
 from bokeh.plotting import figure 
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, ranges, LabelSet
+from bokeh.palettes import PuBu
 
 import socket
 import json
@@ -54,13 +55,20 @@ figVms.line(source=sourceVms, x="x", y="trident3", legend="tr3", alpha=.85, colo
 figVms.legend.location = "top_left"
 
 # Plot VM Loads
-loads = ['25%', '50%', '75%', '100%']
-figLoads = figure(x_range=loads, plot_width=1500, plot_height=400, title="VM Load Count")
-figLoads.vbar(x=loads, top=[0, 0, 0, 0], width=0.5)
-figLoads.xgrid.grid_line_color = None
-figLoads.xaxis.axis_label = "CPU Load (%)"
-figLoads.yaxis.axis_label = "Number of Loads"
-figLoads.y_range.start = 0
+loads = ['25', '50', '75', '100']
+sourceLoads = ColumnDataSource(data=dict(x=loads, y=[0, 0, 0, 0]))
+figLoads = figure(tools=TOOLS, plot_width=1500, plot_height=400,
+				x_axis_label = "CPU Load (%)",
+        		y_axis_label = "Number of Loads",
+				title="VM Load Count", 
+				x_minor_ticks=len(loads),
+        		x_range = sourceLoads.data["x"],
+        		y_range= ranges.Range1d(start=0, end=30))
+#figLoads.xgrid.grid_line_color = None
+labels = LabelSet(x='x', y='y', text='y', level='glyph',
+        x_offset=-13.5, y_offset=0, source=sourceLoads, render_mode='canvas')
+figLoads.vbar(source=sourceLoads, x="x", top='y', bottom=0, width=0.5, color=PuBu[7][2])
+figLoads.add_layout(labels)
 
 # Get Plot Data
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -95,7 +103,7 @@ def update():
 	
 	if data:
 		# x-axis data
-		x = datetime.now()#strftime("%H:%M:%S")
+		x = datetime.now()
 
 		# Update Temperature
 		trident1Temp = data["trident1.vlab.cs.hioa.no"]["hostTemp"] if "trident1.vlab.cs.hioa.no" in data else 0.0
@@ -124,7 +132,8 @@ def update():
 		vmLoads["75"] = trident1VMloads["75"] + trident2VMloads["75"] + trident3VMloads["75"]
 		vmLoads["100"] = trident1VMloads["100"] + trident2VMloads["100"] + trident3VMloads["100"]
 
-		figLoads.vbar(x=loads, top=[vmLoads["25"], vmLoads["50"], vmLoads["75"], vmLoads["100"]], width=0.5)
+		load_data = dict(x=loads, y=[vmLoads["25"], vmLoads["50"], vmLoads["75"], vmLoads["100"]])
+		sourceLoads.stream(load_data, rollover=len(loads))
 
 # Add a periodic callback to be run every 15 second
 curdoc().add_root(figTemp)
