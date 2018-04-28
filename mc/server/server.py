@@ -151,7 +151,7 @@ class Server(object):
 				# Save VM Load
 				vm = getVmName(client_message["vm"]["mac"])
 				vmLoad = client_message["vm"]["load"]
-				if (vmLoad != 0 and vm not in self.vms):
+				if vmLoad != 0:
 					self.vms[vm] = vmLoad
 
 				# Send Response
@@ -165,7 +165,8 @@ class Server(object):
 				
 				# Delete VM Load
 				self.my_mutex.acquire()
-				del self.vms[vm]
+				if vm in self.vms:
+					del self.vms[vm]
 				self.my_mutex.release()
 
 				# MigrateVm

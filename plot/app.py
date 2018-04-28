@@ -8,10 +8,20 @@ from datetime import datetime
 from copy import deepcopy
 from utils import *
 
+from bokeh.models import DatetimeTickFormatter
+
+formatter = DatetimeTickFormatter(
+	hours=["%H:%M:%S"],
+	minutes=["%H:%M:%S"],
+	minsec=["%H:%M:%S"],
+	seconds=["H:%M:%S"]
+)
+
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figTemp = figure(x_axis_type="datetime", title="Temperature", tools=TOOLS, plot_width=1500, plot_height=500)
-figTemp.xaxis.axis_label = "time(min)"
+figTemp.xaxis.formatter = formatter
+figTemp.xaxis.axis_label = "time(h:m:s)"
 figTemp.yaxis.axis_label = "NUMA Node Temperature"
 figTemp.y_range.start = -5
 figTemp.y_range.end = 50
@@ -28,7 +38,8 @@ figTemp.legend.location = "top_left"
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figVms = figure(x_axis_type="datetime", title="Number Of VMs", tools=TOOLS, plot_width=1500, plot_height=400)
-figVms.xaxis.axis_label = "time(min)"
+figVms.xaxis.formatter = formatter
+figVms.xaxis.axis_label = "time(h:m:s)"
 figVms.yaxis.axis_label = "VM numbers"
 figVms.y_range.start = -5
 figVms.y_range.end = 35
@@ -84,7 +95,7 @@ def update():
 	
 	if data:
 		# x-axis data
-		x = datetime.now()	
+		x = datetime.now()#strftime("%H:%M:%S")
 
 		# Update Temperature
 		trident1Temp = data["trident1.vlab.cs.hioa.no"]["hostTemp"] if "trident1.vlab.cs.hioa.no" in data else 0.0
