@@ -167,22 +167,22 @@ class Server(object):
 				logging.info("Sent {} back to {}".format(self.server_message, address))
 				self.my_mutex.release()
 			elif client_message["request"]["migration"]:
-				# Delete VM Load
-				vmMac = client_message["vm"]["mac"]
-				self.my_mutex.acquire()
-				if vmMac in self.vms:
-					logging.info("Deleted VM: {} Load: {}".format(vmMac, self.vms[vmMac]))
-					del self.vms[vmMac]
-				self.my_mutex.release()
-
-				# Get VM Id
-				vm = getVmName(vmMac)
+				# Get VM Domain Name
+				vm = getVmName(client_message["vm"]["mac"])
 				if vm == "":
 					# Retry
 					time.sleep(5)
-					vm = getVmName(vmMac)
+					vm = getVmName(client_message["vm"]["mac"])
 
+				logging.info("Deduced VmName = {} from VmMac = {}".format(vm, client_message["vm"]["mac"]))
 				if vm != "":
+					# Delete VM Load
+					self.my_mutex.acquire()
+					if client_message["vm"]["mac"] in self.vms:
+						logging.info("Deleted VM: {} Load: {}".format(client_message["vm"]["mac"], self.vms[client_message["vm"]["mac"]]))
+						del self.vms[client_message["vm"]["mac"]]
+					self.my_mutex.release()
+
 					# Migrate VM
 					target = client_message["vm"]["target"]
 					migrationThread = threading.Thread(target=migrateVm, args=[vm, target])
