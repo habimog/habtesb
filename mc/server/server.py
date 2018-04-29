@@ -139,52 +139,58 @@ class Server(object):
 	def _handleClient(self):
 		while True:
 			logging.debug("---------------------- handleClient ---------------")
-			logging.debug("Waiting to receive client message")
+			logging.debug("Waiting to receive client message, logged in clients = {}".format(self.vms))
 			
 			data, address = self.client_socket.recvfrom(512)
 			client_message = json.loads(data.decode('utf-8'))
 			logging.info("Received {} from {}".format(client_message, address))
 
-			if client_message["request"]["login"]:
-				# Register VM
+			# Get VM Id
+			vm = getVmName(client_message["vm"]["mac"])
+			if vm == "":
+				# Retry
+				time.sleep(2)
 				vm = getVmName(client_message["vm"]["mac"])
-				vmLoad = client_message["vm"]["load"]
-				self.my_mutex.acquire()
-				if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
-					logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
-					self.vms[vm] = vmLoad
 
+			if vm != "":
+				if client_message["request"]["login"]:
+					# Register VM
+					vmLoad = client_message["vm"]["load"]
+					if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
+						logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
+						self.my_mutex.acquire()
+						self.vms[vm] = vmLoad
+						self.my_mutex.release()
+
+						# Send Response
+						sent = self.client_socket.sendto(json.dumps(client_message).encode('utf-8'), address)
+						logging.info("Sent {} back to {}".format(client_message, address))
+					else:
+						logging.error("VM Load not in SERVER_PLOT_DATA")
+				elif client_message["request"]["temperature"]:
 					# Send Response
-					sent = self.client_socket.sendto(json.dumps(client_message).encode('utf-8'), address)
-					logging.info("Sent {} back to {}".format(client_message, address))
-				else:
-					logging.error("VM Load not in SERVER_PLOT_DATA")
-				self.my_mutex.release()
-			elif client_message["request"]["temperature"]:
-				# Send Response
-				self.my_mutex.acquire()
-				sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
-				logging.info("Sent {} back to {}".format(self.server_message, address))
-				self.my_mutex.release()
-			elif client_message["request"]["migration"]:
-				vm = getVmName(client_message["vm"]["mac"])
-				target = client_message["vm"]["target"]
-				logging.debug("{} and Target {}".format(vm, target))
-				
-				# Delete VM Load
-				self.my_mutex.acquire()
-				if vm in self.vms:
-					logging.info("Deleted VM: {} Load: {}".format(vm, self.vms[vm]))
-					del self.vms[vm]
-				self.my_mutex.release()
+					self.my_mutex.acquire()
+					sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
+					logging.info("Sent {} back to {}".format(self.server_message, address))
+					self.my_mutex.release()
+				elif client_message["request"]["migration"]:
+					# Delete VM Load
+					self.my_mutex.acquire()
+					if vm in self.vms:
+						logging.info("Deleted VM: {} Load: {}".format(vm, self.vms[vm]))
+						del self.vms[vm]
+					self.my_mutex.release()
 
-				# MigrateVm
-				migrationThread = threading.Thread(target=migrateVm, args=[vm, target])
-				migrationThread.setDaemon(True)
-				migrationThread.start()
-				migrationThread.join()
+					# MigrateVm
+					target = client_message["vm"]["target"]
+					migrationThread = threading.Thread(target=migrateVm, args=[vm, target])
+					migrationThread.setDaemon(True)
+					migrationThread.start()
+					migrationThread.join()
+				else:
+					logging.error("ERROR")
 			else:
-				logging.error("ERROR")
+				logging.error("VM Name did not deduced correctly")
 
 
 if __name__ == "__main__":
