@@ -34,6 +34,9 @@ def getHostName():
 		if(host in SERVERS):
 			hostName = host
 			break
+		elif(host == "*" or host != "192.168.122.1"):
+			print("host deduced to be = {}".format(key))
+			hostName = key
 
 	return hostName
 
