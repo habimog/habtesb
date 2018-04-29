@@ -153,6 +153,10 @@ class Server(object):
 				if vmLoad in SERVER_PLOT_DATA["vmLoads"]:
 					logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
 					self.vms[vm] = vmLoad
+
+					# Send Response
+					sent = self.client_socket.sendto(json.dumps(client_message).encode('utf-8'), address)
+					logging.info("Sent {} back to {}".format(client_message, address))
 				else:
 					logging.error("VM Load not in SERVER_PLOT_DATA")
 				self.my_mutex.release()

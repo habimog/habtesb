@@ -27,14 +27,28 @@ class Client(object):
 
 			# Send Login request
 			if self.login:
-				self.client_message["request"]["login"] = True
-				self.client_message["request"]["temperature"] = False
-				self.client_message["request"]["migration"] = False
-				self.client_message["vm"]["mac"] = getVmMac()
-				self.client_message["vm"]["target"] = hostName
-				self.client_message["vm"]["load"] = getLoad()
-				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
-				print("sent: {}".format(self.client_message))
+				try:
+					# Send Request
+					self.client_message["request"]["login"] = True
+					self.client_message["request"]["temperature"] = False
+					self.client_message["request"]["migration"] = False
+					self.client_message["vm"]["mac"] = getVmMac()
+					self.client_message["vm"]["target"] = hostName
+					self.client_message["vm"]["load"] = getLoad()
+					self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
+					print("sent: {}".format(self.client_message))
+				
+					# Receive response
+					print("waiting to receive login request")
+					self.sock.settimeout(5.0)
+					data, server = self.sock.recvfrom(512)
+					self.sock.settimeout(None)
+					server_message = json.loads(data.decode('utf-8'))
+					print("received: {} from {}".format(server_message, server))
+				except:
+					print("Login Request Socket Timedout")
+					time.sleep(30)
+					continue
 
 			# VM wakes randomly
 			rand_time = random.randint(20, 120)
@@ -53,7 +67,7 @@ class Client(object):
 				print("sent: {}".format(self.client_message))
 
 				# Receive response
-				print("waiting to receive")
+				print("waiting to receive Temperature request")
 				self.sock.settimeout(5.0)
 				data, server = self.sock.recvfrom(512)
 				self.sock.settimeout(None)
