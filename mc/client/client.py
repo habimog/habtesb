@@ -16,21 +16,34 @@ class Client(object):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.port = 10000
 		self.delta = 24.0 # delta temperature
+		self.login = True
 
 	def run(self):
 		while True:
-			# VM wakes randomly
-			rand_time = random.randint(20, 120)
-			print("Rand Time = {}".format(rand_time))
-			time.sleep(rand_time)
-			
 			# Get server ip
 			hostName = getHostName()
 			ip = getHostIp(hostName)
 			print('VM is on host: {}, ip: {} port: {}'.format(hostName, ip, self.port))
 
+			# Send Login request
+			if self.login:
+				self.client_message["request"]["login"] = True
+				self.client_message["request"]["temperature"] = False
+				self.client_message["request"]["migration"] = False
+				self.client_message["vm"]["mac"] = getVmMac()
+				self.client_message["vm"]["target"] = hostName
+				self.client_message["vm"]["load"] = getLoad()
+				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
+				print("sent: {}".format(self.client_message))
+
+			# VM wakes randomly
+			rand_time = random.randint(20, 120)
+			print("Rand Time = {}".format(rand_time))
+			time.sleep(rand_time)
+
 			try:
 				# Request Temperature
+				self.client_message["request"]["login"] = False
 				self.client_message["request"]["temperature"] = True
 				self.client_message["request"]["migration"] = False
 				self.client_message["vm"]["mac"] = getVmMac()
@@ -54,6 +67,9 @@ class Client(object):
 					migrate = True if hostTemp > (avgTemp + self.delta) else False
 					print("migrate? {}, AvgTemp = {}, HostTemp = {}".format(migrate, avgTemp, hostTemp))
 
+					# Update Login request
+					self.login = migrate
+
 					if(migrate):
 						# Determine destination
 						if hostName in server_message:
@@ -61,6 +77,7 @@ class Client(object):
 						destination = min(server_message, key=server_message.get)
 
 						# Send Migration Request
+						self.client_message["request"]["login"] = False
 						self.client_message["request"]["migration"] = True
 						self.client_message["request"]["temperature"] = False
 						self.client_message["vm"]["mac"] = getVmMac()

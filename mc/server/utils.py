@@ -11,6 +11,7 @@ SERVERS = {
 
 CLIENT_MESSAGE = {
         "request" : {
+		"login" : False,
                 "temperature" : False,
                 "migration" : False
         },
@@ -53,11 +54,6 @@ def getHostTemp():
         temp_float = [float(temp) for temp in temp_str]
         return sum(temp_float)
 
-	#raw_temp_cmd = ("sensors | grep 'temp1' | awk '{print $2}' | [(\^.\d)]").splitlines()
-	#temp_str = subprocess.check_output(raw_temp_cmd, shell=True)
-	#temp_float = [float(temp) for temp in raw_temp_cmd]
-	#return sum(temp_float)
-
 # Get server full hostname
 def getHostName():
 	host = subprocess.check_output("hostname --all-fqdns", shell=True).decode('UTF-8').rstrip(" \n")
@@ -85,7 +81,7 @@ def migrateVm(vm, target):
         output = subprocess.check_call(cmd, shell=True)
         return output
 
-# Get no. of VMs running on the host
+# Get number of VMs running on the host
 def getNumberOfVms():
 	numOfVm = subprocess.check_output("virsh list | awk '{ print $2 }' | tail -n +3 | head -n -1 | wc -l", shell=True).decode('UTF-8')
 	return int(numOfVm)
@@ -95,10 +91,7 @@ def getVmsLoggedin():
 	vms = subprocess.check_output("virsh list | awk '{ print $2 }' | tail -n +3 | head -n -1", shell=True).decode('UTF-8').splitlines()
 	return list(vms)
 
-#get No. of NUMA nodes
+# Get number of NUMA nodes
 def getNumberOfNodes():
 	numOfNodes = subprocess.check_output("numactl --hardware | grep 'nodes' | awk '{print $2}'", shell=True).decode('UTF-8').rstrip('\n')
-	return int(numOfNodes)
-
-if __name__ == "__main__":
-	print(getNumberOfNodes())	
+	return int(numOfNodes)	

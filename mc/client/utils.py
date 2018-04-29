@@ -9,6 +9,7 @@ SERVERS = {
 
 CLIENT_MESSAGE = {
 	"request" : {
+		"login" : False,
 		"temperature" : False,
 		"migration" : False
 	},

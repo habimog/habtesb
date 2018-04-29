@@ -30,7 +30,7 @@ class Server(object):
 		# Server message containing the temperature of all the servers
 		self.server_message = deepcopy(SERVER_MESSAGE)
 
-		# List of VMs running on server
+		# List of VMs running on server with their corresponging load
 		self.vms = {} 
 
 		# Python create mutex
@@ -145,16 +145,20 @@ class Server(object):
 			client_message = json.loads(data.decode('utf-8'))
 			logging.info("Received {} from {}".format(client_message, address))
 
-			if client_message["request"]["temperature"]:
-				self.my_mutex.acquire()
-				
-				# Save VM Load
+			if client_message["request"]["login"]:
+				# Register VM
 				vm = getVmName(client_message["vm"]["mac"])
 				vmLoad = client_message["vm"]["load"]
-				if vmLoad != 0:
+				self.my_mutex.acquire()
+				if vmLoad in SERVER_PLOT_DATA["vmLoads"]:
+					logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
 					self.vms[vm] = vmLoad
-
+				else:
+					logging.error("VM Load not in SERVER_PLOT_DATA")
+				self.my_mutex.release()
+			elif client_message["request"]["temperature"]:
 				# Send Response
+				self.my_mutex.acquire()
 				sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
 				logging.info("Sent {} back to {}".format(self.server_message, address))
 				self.my_mutex.release()
@@ -166,6 +170,7 @@ class Server(object):
 				# Delete VM Load
 				self.my_mutex.acquire()
 				if vm in self.vms:
+					logging.info("Deleted VM: {} Load: {}".format(vm, self.vms[vm]))
 					del self.vms[vm]
 				self.my_mutex.release()
 
