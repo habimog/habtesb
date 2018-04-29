@@ -150,7 +150,7 @@ class Server(object):
 				vmLoad = client_message["vm"]["load"]
 				vmMac = client_message["vm"]["mac"]
 				if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
-					logging.info("Added VM: {} Load: {}".format(vmMac, vmLoad))
+					logging.info("Added vmMac: {} Load: {}".format(vmMac, vmLoad))
 					self.my_mutex.acquire()
 					self.vms[vmMac] = vmLoad
 					self.my_mutex.release()
@@ -179,7 +179,7 @@ class Server(object):
 					# Delete VM Load
 					self.my_mutex.acquire()
 					if client_message["vm"]["mac"] in self.vms:
-						logging.info("Deleted VM: {} Load: {}".format(client_message["vm"]["mac"], self.vms[client_message["vm"]["mac"]]))
+						logging.info("Deleted vmMac: {} Load: {}".format(client_message["vm"]["mac"], self.vms[client_message["vm"]["mac"]]))
 						del self.vms[client_message["vm"]["mac"]]
 					self.my_mutex.release()
 

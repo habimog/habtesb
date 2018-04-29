@@ -65,15 +65,6 @@ def getHostNameFromIp(ip):
 			break
 	return host
 
-# Get VM name from MAC Address
-def getVmName(mac):
-	vms = list(subprocess.check_output("virsh list | awk '{ print $2 }'| tail -n +3 | head -n -1", shell=True).decode('UTF-8').splitlines())
-	for vm in vms:
-		vm_mac = subprocess.check_output("virsh domiflist %s | awk '{ print $5 }' | tail -n +3 | head -n -1" % (vm), shell=True).decode('UTF-8').rstrip("\n")
-		if(mac == vm_mac):
-			return vm
-	return ""
-
 # Migrate VM
 def migrateVm(vm, target):
         cmd = "virsh migrate --live %s qemu+ssh://%s/system --undefinesource --persistent" % (vm, target)
@@ -84,6 +75,15 @@ def migrateVm(vm, target):
 def getVmsLoggedin():
 	vms = subprocess.check_output("virsh list | awk '{ print $2 }' | tail -n +3 | head -n -1", shell=True).decode('UTF-8').splitlines()
 	return list(vms)
+
+# Get VM name from MAC Address
+def getVmName(mac):
+	vms = getVmsLoggedin()
+	for vm in vms:
+		vm_mac = subprocess.check_output("virsh domiflist %s | awk '{ print $5 }' | tail -n +3 | head -n -1" % (vm), shell=True).decode('UTF-8').rstrip("\n")
+		if(mac == vm_mac):
+			return vm
+	return ""
 
 # Get number of VMs running on the host
 def getNumberOfVms():
