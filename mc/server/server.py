@@ -150,7 +150,7 @@ class Server(object):
 				vm = getVmName(client_message["vm"]["mac"])
 				vmLoad = client_message["vm"]["load"]
 				self.my_mutex.acquire()
-				if vmLoad in SERVER_PLOT_DATA["vmLoads"]:
+				if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
 					logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
 					self.vms[vm] = vmLoad
 
