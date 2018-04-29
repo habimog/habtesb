@@ -19,6 +19,8 @@ class Client(object):
 		self.login = True
 
 	def run(self):
+		time.sleep(30)
+		
 		while True:
 			# Get server ip
 			hostName = getHostName()
