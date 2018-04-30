@@ -1,5 +1,4 @@
 import subprocess
-from uuid import getnode as get_mac
 
 SERVERS = {
 	"trident1.vlab.cs.hioa.no" : "128.39.120.89",
@@ -48,16 +47,12 @@ def getHostIp(hostName):
 	return hostIp
 
 def getVmMac():
-	mac = get_mac()
-	return ':'.join(("%012x" % mac)[i:i+2] for i in range(0, 12, 2))
+	mac = subprocess.check_output("sudo ifconfig | grep 'HWaddr' | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
+    return mac.lower()
 
 def getLoad():
-	load = subprocess.check_output("ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
+	load = subprocess.check_output("sudo ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
 	print("Load = {}".format(load))
 	
-	try:
-		return int(load)
-	except:
-		print("Load not int")
-		return 0
+	return load
 		
