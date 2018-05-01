@@ -1,15 +1,12 @@
 from bokeh.io import curdoc
 from bokeh.plotting import figure 
+from bokeh.transform import dodge
+from bokeh.core.properties import value
 from bokeh.models import ColumnDataSource, ranges, LabelSet
-from bokeh.palettes import PuBu
-
-import socket
-import json
-from datetime import datetime
-from copy import deepcopy
-from utils import *
-
 from bokeh.models import DatetimeTickFormatter
+
+from datetime import datetime
+from utils import *
 
 formatter = DatetimeTickFormatter(
 	hours=["%H:%M:%S"],
@@ -20,12 +17,11 @@ formatter = DatetimeTickFormatter(
 
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figTemp = figure(x_axis_type="datetime", title="Temperature", tools=TOOLS, plot_width=800, plot_height=500)
+figTemp = figure(x_axis_type="datetime", tools=TOOLS, plot_width=800, plot_height=500,
+			x_axis_label = "@timestamp per 15 seconds", y_axis_label = "NUMA Node Temperature",
+			y_range=(-5, 50), title="Temperature")
 figTemp.xaxis.formatter = formatter
-figTemp.xaxis.axis_label = "@timestamp per 15 seconds"
-figTemp.yaxis.axis_label = "NUMA Node Temperature"
-figTemp.y_range.start = -5
-figTemp.y_range.end = 50
+
 figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend="tr1", size=7, alpha=.85, color="peru")
 figTemp.line(source=sourceTemp, x="x", y="trident1", legend="tr1", alpha=.85, color="peru")
 
@@ -38,12 +34,11 @@ figTemp.legend.location = "top_left"
 
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figVms = figure(x_axis_type="datetime", title="Number Of VMs", tools=TOOLS, plot_width=800, plot_height=400)
+figVms = figure(x_axis_type="datetime", tools=TOOLS, plot_width=800, plot_height=400,
+			x_axis_label = "@timestamp per 15 seconds", y_axis_label = "VM numbers",
+			y_range=(-5, 35), title="Number Of VMs", )
 figVms.xaxis.formatter = formatter
-figVms.xaxis.axis_label = "@timestamp per 15 seconds"
-figVms.yaxis.axis_label = "VM numbers"
-figVms.y_range.start = -5
-figVms.y_range.end = 35
+
 figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend="tr1", size=7, alpha=.85, color="peru")
 figVms.line(source=sourceVms, x="x", y="trident1", legend="tr1", alpha=.85, color="peru")
 
@@ -55,51 +50,49 @@ figVms.line(source=sourceVms, x="x", y="trident3", legend="tr3", alpha=.85, colo
 figVms.legend.location = "top_left"
 
 # Plot VM Loads
+# https://bokeh.pydata.org/en/latest/docs/user_guide/categorical.html
 loads = ['25', '50', '75', '100']
-sourceLoads = ColumnDataSource(data=dict(x=loads, y=[0, 0, 0, 0]))
-figLoads = figure(tools=TOOLS, plot_width=800, plot_height=400,
-				x_axis_label = "CPU Load (%)",
-        		y_axis_label = "Number of Loads",
-				title="VM Load Count", 
-				x_minor_ticks=len(loads),
-        		x_range = sourceLoads.data["x"],
-        		y_range= ranges.Range1d(start=0, end=30))
-#figLoads.xgrid.grid_line_color = None
-labels = LabelSet(x='x', y='y', text='y', level='glyph',
-        x_offset=-13.5, y_offset=0, source=sourceLoads, render_mode='canvas')
-figLoads.vbar(source=sourceLoads, x="x", top='y', bottom=0, width=0.5, color=PuBu[7][2])
-figLoads.add_layout(labels)
+data = {
+	'loads'    : loads,
+    'trident1' : [0, 0, 0, 0],
+    'trident2' : [0, 0, 0, 0],
+    'trident3' : [0, 0, 0, 0]
+}
+sourceLoads = ColumnDataSource(data=data)
+figLoads = figure(x_range=loads, y_range=(0, 15), 
+			plot_width=800, plot_height=400, 
+			x_axis_label = "CPU Load (%)", y_axis_label = "Number of Loads",
+			title="VM Load Count", toolbar_location=None, tools=TOOLS)
 
-# Get Plot Data
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-port = 10002
-def _getPlotData():
-	server_message = {}
-	for host, ip in SERVERS.items():
-		server_message[host] = deepcopy(SERVER_PLOT_DATA)
-		try:
-			# Request server plot data 
-			sock.sendto(json.dumps(deepcopy(SERVER_PLOT_DATA)).encode('utf-8'), (ip, port))
-			print("sent server plot data request to {}".format((ip, port)))
+tr1labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident1', text='trident1', level='glyph',
+        x_offset=-5, y_offset=0, source=sourceLoads, render_mode='canvas')
+figLoads.add_layout(tr1labels)
+figLoads.vbar(x=dodge('loads', -0.25, range=figLoads.x_range), top='trident1', 
+			width=0.2, source=sourceLoads, color="peru", legend=value("trident1"))
 
-			# Receive response
-			print("waiting to receive")
-			sock.settimeout(5.0)
-			data, address = sock.recvfrom(512)
-			sock.settimeout(None)
-			server_message[host] = json.loads(data.decode('utf-8'))
-			print("received: {} from {}".format(server_message[host], address))
-		except:
-			print("Socket timeout for {}".format((ip, port)))
+tr2labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident2', text='trident2', level='glyph',
+        x_offset=37, y_offset=0, source=sourceLoads, render_mode='canvas')
+figLoads.add_layout(tr2labels)
+figLoads.vbar(x=dodge('loads',  0.0,  range=figLoads.x_range), top='trident2', 
+			width=0.2, source=sourceLoads, color="blue", legend=value("trident2"))
 
-	return server_message
-			
+tr3labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident3', text='trident3', level='glyph',
+        x_offset=79, y_offset=0, source=sourceLoads, render_mode='canvas')
+figLoads.add_layout(tr3labels)
+figLoads.vbar(x=dodge('loads',  0.25, range=figLoads.x_range), top='trident3', 
+			width=0.2, source=sourceLoads, color="red", legend=value("trident3"))
 
+figLoads.x_range.range_padding = 0.1
+figLoads.xgrid.grid_line_color = None
+figLoads.legend.location = "top_left"
+figLoads.legend.orientation = "horizontal"			
+
+# Periodic callback
 def update():
 	print("------------------------ Update -------------------")
 	
 	# Request data
-	data = _getPlotData()
+	data = getPlotData()
 	
 	if data:
 		# x-axis data
@@ -126,13 +119,12 @@ def update():
 		trident2VMloads = data["trident2.vlab.cs.hioa.no"]["vmLoads"] if "trident2.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]
 		trident3VMloads = data["trident3.vlab.cs.hioa.no"]["vmLoads"] if "trident3.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]
 
-		vmLoads = {}
-		vmLoads["25"] = trident1VMloads["25"] + trident2VMloads["25"] + trident3VMloads["25"]
-		vmLoads["50"] = trident1VMloads["50"] + trident2VMloads["50"] + trident3VMloads["50"]
-		vmLoads["75"] = trident1VMloads["75"] + trident2VMloads["75"] + trident3VMloads["75"]
-		vmLoads["100"] = trident1VMloads["100"] + trident2VMloads["100"] + trident3VMloads["100"]
-
-		load_data = dict(x=loads, y=[vmLoads["25"], vmLoads["50"], vmLoads["75"], vmLoads["100"]])
+		load_data = {
+			'loads'    : loads,
+			'trident1' : [trident1VMloads["25"], trident1VMloads["50"], trident1VMloads["75"], trident1VMloads["100"]],
+			'trident2' : [trident2VMloads["25"], trident2VMloads["50"], trident2VMloads["75"], trident2VMloads["100"]],
+			'trident3' : [trident3VMloads["25"], trident3VMloads["50"], trident3VMloads["75"], trident3VMloads["100"]]
+		}
 		sourceLoads.stream(load_data, rollover=len(loads))
 
 # Add a periodic callback to be run every 15 second

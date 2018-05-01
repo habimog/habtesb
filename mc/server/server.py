@@ -171,25 +171,27 @@ class Server(object):
 					logging.info("Sent {} back to {}".format(self.server_message, address))
 					self.my_mutex.release()
 				elif client_message["request"]["migration"]:
-					# Delete VM Load
-					self.my_mutex.acquire()
-					if vm in self.vms:
-						logging.info("Deleted VM: {} Load: {}".format(vm, self.vms[vm]))
-						del self.vms[vm]
-					self.my_mutex.release()
-
 					# Migrate VM
 					target = client_message["vm"]["target"]
 					migrationThread = threading.Thread(target=migrateVm, args=[vm, target])
 					migrationThread.setDaemon(True)
 					migrationThread.start()
 					migrationThread.join()
+
+					# Delete VM Load
+					self.my_mutex.acquire()
+					if vm in self.vms:
+						logging.info("Deleted VM: {} Load: {}".format(vm, self.vms[vm]))
+						del self.vms[vm]
+					self.my_mutex.release()
 				else:
 					logging.error("Wrong VM Request Message")
 			else:
 				logging.error("VM Domain-Name did not deduced correctly")
 
-
+'''
+	Main
+'''
 if __name__ == "__main__":
 	logging.info("Server Started")
 
