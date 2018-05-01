@@ -93,6 +93,3 @@ def getNumberOfVms():
 def getNumberOfNodes():
 	numOfNodes = subprocess.check_output("numactl --hardware | grep 'nodes' | awk '{print $2}'", shell=True).decode('UTF-8').rstrip('\n')
 	return int(numOfNodes)	
-
-if __name__ == "__main__":
-	pass
