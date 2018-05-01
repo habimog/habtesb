@@ -87,15 +87,14 @@ class Server(object):
 			logging.debug("---------------------- handleLogin ---------------")
 			
 			# Delete VMs Loggedout
-			self.my_mutex.acquire()
 			vms = getVmsLoggedin()
+			self.my_mutex.acquire()
 			for vm in self.vms:
 				if vm not in vms:
 					logging.info("VM: {} Loggedout".format(vm))
 					del self.vms[vm]
 			logging.debug("Logged in clients = {}".format(self.vms))
 			self.my_mutex.release()
-
 			time.sleep(15)
 
 
