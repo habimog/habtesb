@@ -89,14 +89,13 @@ class Server(object):
 			# Delete VMs Loggedout
 			vms = getVmsLoggedin()
 			self.my_mutex.acquire()
-			for vm in self.vms:
-				if vm not in vms:
-					logging.info("VM: {} Loggedout".format(vm))
-					del self.vms[vm]
+			loggedoutVms = [vm for vm in self.vms if vm not in vms]
+			for vm in loggedoutVms:
+				logging.info("VM: {} Loggedout".format(vm))
+				del self.vms[vm]
 			logging.debug("Logged in clients = {}".format(self.vms))
 			self.my_mutex.release()
 			time.sleep(15)
-
 
 	def _handlePlot(self):
 		while True:
