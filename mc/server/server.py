@@ -61,11 +61,15 @@ class Server(object):
 		logging.debug("Server Exited")
 
 	def run(self):
+		# Handle login
+	    loginThread = threading.Thread(target=self._handleLogin)
+		loginThread.start()
+		
 		# Handle plot
 		plotThread = threading.Thread(target=self._handlePlot)
 		plotThread.start()
 		
-		# Handle Server
+		# Handle server
 		serverThread = threading.Thread(target=self._handleServer)
 		serverThread.start()
 
@@ -76,6 +80,24 @@ class Server(object):
 		clientThread.join()
 		serverThread.join()
 		plotThread.join()
+		loginThread.join()
+
+	def _handleLogin(self):
+		while True:
+			logging.debug("---------------------- handleLogin ---------------")
+			
+			# Delete VMs Loggedout
+			self.my_mutex.acquire()
+			vms = getVmsLoggedin()
+			for vm in self.vms:
+				if vm not in vms:
+					logging.info("VM: {} Loggedout".format(vm))
+					del self.vms[vm]
+			logging.debug("Logged in clients = {}".format(self.vms))
+			self.my_mutex.release()
+
+			time.sleep(5)
+
 
 	def _handlePlot(self):
 		while True:
@@ -139,17 +161,7 @@ class Server(object):
 	def _handleClient(self):
 		while True:
 			logging.debug("---------------------- handleClient ---------------")
-			logging.debug("Logged in clients = {}".format(self.vms))
 			
-			# Delete VMs Loggedout
-			self.my_mutex.acquire()
-			vms = getVmsLoggedin()
-			for vm in self.vms:
-				if vm not in vms:
-					logging.info("VM: {} Loggedout".format(vm))
-					del self.vms[vm]
-			self.my_mutex.release()
-
 			# Get VM message
 			logging.debug("Waiting to receive client messages")
 			data, address = self.client_socket.recvfrom(512)
