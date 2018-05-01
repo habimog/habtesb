@@ -62,7 +62,7 @@ class Server(object):
 
 	def run(self):
 		# Handle login
-	    loginThread = threading.Thread(target=self._handleLogin)
+		loginThread = threading.Thread(target=self._handleLogin)
 		loginThread.start()
 		
 		# Handle plot
