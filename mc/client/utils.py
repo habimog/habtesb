@@ -48,7 +48,7 @@ def getHostIp(hostName):
 
 def getVmMac():
 	mac = subprocess.check_output("sudo ifconfig | grep 'HWaddr' | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
-    return mac.lower()
+	return mac.lower()
 
 def getLoad():
 	load = subprocess.check_output("sudo ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
