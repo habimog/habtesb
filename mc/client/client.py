@@ -17,26 +17,32 @@ class Client(object):
 		self.port = 10000
 		self.delta = 24.0 # delta temperature
 		self.login = True
+		self.load = 0
 
 	def run(self):
 		time.sleep(30)
 		
 		while True:
-			# Get server ip
+			# Get client date
 			hostName = getHostName()
 			ip = getHostIp(hostName)
+			mac = getVmMac()
+			load = getLoad()
 			print('VM is on host: {}, ip: {} port: {}'.format(hostName, ip, self.port))
+			print('Load: {}, Load Changed: {}'.format(load, self.load != load))
 
 			# Send Login request
-			if self.login:
+			if(self.login or self.load != load):
+				self.load = load
+
 				try:
 					# Send Request
 					self.client_message["request"]["login"] = True
 					self.client_message["request"]["temperature"] = False
 					self.client_message["request"]["migration"] = False
-					self.client_message["vm"]["mac"] = getVmMac()
+					self.client_message["vm"]["mac"] = mac
 					self.client_message["vm"]["target"] = hostName
-					self.client_message["vm"]["load"] = getLoad()
+					self.client_message["vm"]["load"] = load
 					self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 					print("sent: {}".format(self.client_message))
 				
@@ -52,7 +58,7 @@ class Client(object):
 					time.sleep(30)
 					continue
 
-			# VM wakes randomly
+			# Wakes VM randomly
 			rand_time = random.randint(20, 120)
 			print("Rand Time = {}".format(rand_time))
 			time.sleep(rand_time)
@@ -62,9 +68,9 @@ class Client(object):
 				self.client_message["request"]["login"] = False
 				self.client_message["request"]["temperature"] = True
 				self.client_message["request"]["migration"] = False
-				self.client_message["vm"]["mac"] = getVmMac()
+				self.client_message["vm"]["mac"] = mac
 				self.client_message["vm"]["target"] = hostName
-				self.client_message["vm"]["load"] = getLoad()
+				self.client_message["vm"]["load"] = load
 				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 				print("sent: {}".format(self.client_message))
 
@@ -96,9 +102,9 @@ class Client(object):
 						self.client_message["request"]["login"] = False
 						self.client_message["request"]["migration"] = True
 						self.client_message["request"]["temperature"] = False
-						self.client_message["vm"]["mac"] = getVmMac()
+						self.client_message["vm"]["mac"] = mac
 						self.client_message["vm"]["target"] = destination
-						self.client_message["vm"]["load"] = getLoad()
+						self.client_message["vm"]["load"] = load
 						self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 						print("sent: {} to {}".format(self.client_message, destination))
 			

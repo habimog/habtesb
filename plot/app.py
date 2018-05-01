@@ -17,36 +17,40 @@ formatter = DatetimeTickFormatter(
 
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figTemp = figure(x_axis_type="datetime", tools=TOOLS, plot_width=800, plot_height=500,
+figTemp = figure(x_axis_type="datetime", plot_width=800, plot_height=500,
 			x_axis_label = "@timestamp per 15 seconds", y_axis_label = "NUMA Node Temperature",
-			y_range=(-5, 50), title="Temperature")
+			y_range=(-5, 40), title="Temperature", tools=TOOLS)
+
+figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
+figTemp.line(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
+
+figTemp.asterisk(source=sourceTemp, x="x", y="trident2", legend=value("trident2"), size=7, alpha=.85, color="blue")
+figTemp.line(source=sourceTemp, x="x", y="trident2", legend=value("trident2"), alpha=.85, color="blue")
+
+figTemp.inverted_triangle(source=sourceTemp, x="x", y="trident3", legend=value("trident3"), size=7, alpha=.85, color="red")
+figTemp.line(source=sourceTemp, x="x", y="trident3", legend=value("trident3"), alpha=.85, color="red")
+
 figTemp.xaxis.formatter = formatter
-
-figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend="tr1", size=7, alpha=.85, color="peru")
-figTemp.line(source=sourceTemp, x="x", y="trident1", legend="tr1", alpha=.85, color="peru")
-
-figTemp.asterisk(source=sourceTemp, x="x", y="trident2", legend="tr2", size=7, alpha=.85, color="blue")
-figTemp.line(source=sourceTemp, x="x", y="trident2", legend="tr2", alpha=.85, color="blue")
-
-figTemp.inverted_triangle(source=sourceTemp, x="x", y="trident3", legend="tr3", size=7, alpha=.85, color="red")
-figTemp.line(source=sourceTemp, x="x", y="trident3", legend="tr3", alpha=.85, color="red")
+figTemp.legend.orientation = "horizontal"
 figTemp.legend.location = "top_left"
 
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figVms = figure(x_axis_type="datetime", tools=TOOLS, plot_width=800, plot_height=400,
+figVms = figure(x_axis_type="datetime", plot_width=800, plot_height=400,
 			x_axis_label = "@timestamp per 15 seconds", y_axis_label = "VM numbers",
-			y_range=(-5, 35), title="Number Of VMs", )
+			y_range=(-5, 32), title="Number Of VMs", tools=TOOLS)
+
+figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
+figVms.line(source=sourceVms, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
+
+figVms.asterisk(source=sourceVms, x="x", y="trident2", legend=value("trident2"), size=7, alpha=.85, color="blue")
+figVms.line(source=sourceVms, x="x", y="trident2", legend=value("trident2"), alpha=.85, color="blue")
+
+figVms.inverted_triangle(source=sourceVms, x="x", y="trident3", legend=value("trident3"), size=7, alpha=.85, color="red")
+figVms.line(source=sourceVms, x="x", y="trident3", legend=value("trident3"), alpha=.85, color="red")
+
 figVms.xaxis.formatter = formatter
-
-figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend="tr1", size=7, alpha=.85, color="peru")
-figVms.line(source=sourceVms, x="x", y="trident1", legend="tr1", alpha=.85, color="peru")
-
-figVms.asterisk(source=sourceVms, x="x", y="trident2", legend="tr2", size=7, alpha=.85, color="blue")
-figVms.line(source=sourceVms, x="x", y="trident2", legend="tr2", alpha=.85, color="blue")
-
-figVms.inverted_triangle(source=sourceVms, x="x", y="trident3", legend="tr3", size=7, alpha=.85, color="red")
-figVms.line(source=sourceVms, x="x", y="trident3", legend="tr3", alpha=.85, color="red")
+figVms.legend.orientation = "horizontal"
 figVms.legend.location = "top_left"
 
 # Plot VM Loads
@@ -62,7 +66,7 @@ sourceLoads = ColumnDataSource(data=data)
 figLoads = figure(x_range=loads, y_range=(0, 15), 
 			plot_width=800, plot_height=400, 
 			x_axis_label = "CPU Load (%)", y_axis_label = "Number of Loads",
-			title="VM Load Count", toolbar_location=None, tools=TOOLS)
+			title="VM Load Count", tools=TOOLS)
 
 tr1labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident1', text='trident1', level='glyph',
         x_offset=-5, y_offset=0, source=sourceLoads, render_mode='canvas')
