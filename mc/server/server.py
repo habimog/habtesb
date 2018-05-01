@@ -139,7 +139,19 @@ class Server(object):
 	def _handleClient(self):
 		while True:
 			logging.debug("---------------------- handleClient ---------------")
-			logging.debug("Waiting to receive client message, logged in clients = {}".format(self.vms))
+			logging.debug("Logged in clients = {}".format(self.vms))
+			
+			# Delete VMs Loggedout
+			self.my_mutex.acquire()
+			vms = getVmsLoggedin()
+			for vm in self.vms:
+				if vm not in vms:
+					logging.info("VM: {} Loggedout".format(vm))
+					del self.vms[vm]
+			self.my_mutex.release()
+
+			# Get VM message
+			logging.debug("Waiting to receive client messages")
 			data, address = self.client_socket.recvfrom(512)
 			client_message = json.loads(data.decode('utf-8'))
 			logging.info("Received {} from {}".format(client_message, address))
