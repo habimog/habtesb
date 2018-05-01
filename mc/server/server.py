@@ -96,7 +96,7 @@ class Server(object):
 			logging.debug("Logged in clients = {}".format(self.vms))
 			self.my_mutex.release()
 
-			time.sleep(5)
+			time.sleep(15)
 
 
 	def _handlePlot(self):
