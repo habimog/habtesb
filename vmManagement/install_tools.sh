@@ -5,3 +5,5 @@ sudo apt-get install -y qemu-kvm \
 			bridge-utils \
 			virtinst \
 			language-pack-en
+
+pip install bokeh
