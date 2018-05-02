@@ -27,9 +27,8 @@ CLIENT_MESSAGE = {
 }
 
 SERVER_MESSAGE = {
-	"trident1.vlab.cs.hioa.no" : 0.0,
-	"trident2.vlab.cs.hioa.no" : 0.0,
-	"trident3.vlab.cs.hioa.no" : 0.0
+	"maxTemp"  : 0.0,
+	"hostTemp" : 0.0
 }
  
 def getHostName():
