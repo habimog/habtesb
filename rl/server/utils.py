@@ -26,9 +26,14 @@ CLIENT_MESSAGE = {
 	}
 }
 
+SERVER_MESSAGE = {
+	"maxTemp"  : 0.0,
+	"hostTemp" : 0.0
+}
+
 SERVER_PLOT_DATA = {
 	"hostTemp" : 0.0,
-    "numVms" : 0,
+	"numVms" : 0,
 	"vmLoads" : { 
 		"25"  : 0,
 		"50"  : 0,
