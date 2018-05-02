@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import subprocess
 
 SERVERS = {
@@ -36,14 +38,12 @@ def getHostName():
 		elif(host == "*" or host != "192.168.122.1"):
 			print("host deduced to be = {}".format(key))
 			hostName = key
-
 	return hostName
 
 def getHostIp(hostName):
 	hostIp = ""
 	if hostName in SERVERS:
 		hostIp = SERVERS[hostName]
-	
 	return hostIp
 
 def getVmMac():
@@ -53,6 +53,5 @@ def getVmMac():
 def getLoad():
 	load = subprocess.check_output("sudo ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
 	print("Load = {}".format(load))
-	
 	return load
 		
