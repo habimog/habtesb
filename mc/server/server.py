@@ -11,6 +11,7 @@ import signal
 import logging
 from multiprocessing import Process
 from copy import deepcopy
+
 from utils import *
 import calibrate
 
@@ -121,23 +122,20 @@ class Server(object):
 	def _handleServer(self):
 		while True:
 			logging.debug("---------------------- handleServer ---------------")
-			time.sleep(5)
+			time.sleep(15)
 
 			host = getHostName()
 			servers = list(SERVERS.keys())
 			servers.remove(str(host))
-
-			# Python acquire mutex
-			self.my_mutex.acquire()
 			hostTemp = getHostTemp() - self.calibrationTemp
 			logging.debug("Host temerature = {}".format(hostTemp))
+			
+			self.my_mutex.acquire()
 			self.server_message[host] = hostTemp if hostTemp >= 0.0 else 0.0
 			for server in servers:
 				server_address = (getIpFromHostName(server), self.server_port)
 				sent = self.server_socket.sendto(json.dumps(self.server_message).encode('utf-8'), server_address)
 				logging.info("Sent {} to {}".format(self.server_message, server_address))
-
-			# Python release mutex
 			self.my_mutex.release()
 			
 			for server in servers:
