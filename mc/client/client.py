@@ -20,10 +20,10 @@ class Client(object):
 		self.load = 0
 
 	def run(self):
-		time.sleep(30)
+		time.sleep(120)
 		
 		while True:
-			# Get client date
+			# Get client data
 			hostName = getHostName()
 			ip = getHostIp(hostName)
 			mac = getVmMac()
@@ -54,12 +54,12 @@ class Client(object):
 					server_message = json.loads(data.decode('utf-8'))
 					print("received: {} from {}".format(server_message, server))
 				except:
-					print("Login Request Socket Timedout")
+					print("Login Request Socket Timed out, Retry ...")
 					time.sleep(30)
 					continue
 
-			# Wakes VM randomly
-			rand_time = random.randint(20, 120)
+			# Wake VM randomly
+			rand_time = random.randint(60, 180)
 			print("Rand Time = {}".format(rand_time))
 			time.sleep(rand_time)
 
@@ -108,8 +108,8 @@ class Client(object):
 						self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 						print("sent: {} to {}".format(self.client_message, destination))
 			
-						# Sleep for 30 sec, for migration to complete
-						time.sleep(30)
+						# Sleep for 120 sec, for migration to complete
+						time.sleep(120)
 				except:
 					print("An unexpected error occurred")
 			except:
