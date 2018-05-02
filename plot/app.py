@@ -63,7 +63,7 @@ data = {
     'trident3' : [0, 0, 0, 0]
 }
 sourceLoads = ColumnDataSource(data=data)
-figLoads = figure(x_range=loads, y_range=(0, 15), 
+figLoads = figure(x_range=loads, y_range=(0, 20), 
 			plot_width=800, plot_height=400, 
 			x_axis_label = "CPU Load (%)", y_axis_label = "Number of Loads",
 			title="VM Load Count", tools=TOOLS)
@@ -108,7 +108,7 @@ def update():
 		trident3Temp = data["trident3.vlab.cs.hioa.no"]["hostTemp"] if "trident3.vlab.cs.hioa.no" in data else 0.0
 
 		temp_data = dict(x=[x], trident1=[trident1Temp], trident2=[trident2Temp], trident3=[trident3Temp])
-		sourceTemp.stream(temp_data, rollover=100)
+		sourceTemp.stream(temp_data, rollover=200)
 
 		# Update VMs Number
 		trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if "trident1.vlab.cs.hioa.no" in data else 0	
@@ -116,7 +116,7 @@ def update():
 		trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if "trident3.vlab.cs.hioa.no" in data else 0
 		
 		vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
-		sourceVms.stream(vms_data, rollover=100)
+		sourceVms.stream(vms_data, rollover=200)
 
 		# Update VM loads
 		trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]	
