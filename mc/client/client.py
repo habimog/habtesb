@@ -34,7 +34,6 @@ class Client(object):
 			# Send Login request
 			if(self.login or self.load != load):
 				self.load = load
-
 				try:
 					# Send Request
 					self.client_message["request"]["login"] = True
