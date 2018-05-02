@@ -21,41 +21,9 @@ class Client(object):
 
 	def run(self):
 		time.sleep(120)
-		
 		while True:
-			# Get client data
-			hostName = getHostName()
-			ip = getHostIp(hostName)
-			mac = getVmMac()
-			load = getLoad()
-			print('VM is on host: {}, ip: {} port: {}'.format(hostName, ip, self.port))
-			print('Load: {}, Load Changed: {}'.format(load, self.load != load))
-
-			# Send Login request
-			if(self.login or self.load != load):
-				self.load = load
-				try:
-					# Send Request
-					self.client_message["request"]["login"] = True
-					self.client_message["request"]["temperature"] = False
-					self.client_message["request"]["migration"] = False
-					self.client_message["vm"]["mac"] = mac
-					self.client_message["vm"]["target"] = hostName
-					self.client_message["vm"]["load"] = load
-					self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
-					print("sent: {}".format(self.client_message))
-				
-					# Receive response
-					print("waiting to receive login request")
-					self.sock.settimeout(5.0)
-					data, server = self.sock.recvfrom(512)
-					self.sock.settimeout(None)
-					server_message = json.loads(data.decode('utf-8'))
-					print("received: {} from {}".format(server_message, server))
-				except:
-					print("Login Request Socket Timed out, Retry ...")
-					time.sleep(30)
-					continue
+			# Send Client status
+			hostName, ip, mac, load = self._sendStatus()
 
 			# Wake VM randomly
 			rand_time = random.randint(60, 180)
@@ -113,6 +81,45 @@ class Client(object):
 					print("An unexpected error occurred")
 			except:
 				print("Socket timeout")
+
+	def _sendStatus(self):
+		# Get client data
+		hostName = getHostName()
+		ip = getHostIp(hostName)
+		mac = getVmMac()
+		load = getLoad()
+		print('VM is on host: {}, ip: {} port: {}'.format(hostName, ip, self.port))
+		print('Load: {}, Load Changed: {}'.format(load, self.load != load))
+
+		# Send Login request/Load change notification
+		if(self.login or self.load != load):
+			self.load = load
+			acked = False
+			while not acked:
+				try:
+					# Send Request
+					self.client_message["request"]["login"] = True
+					self.client_message["request"]["temperature"] = False
+					self.client_message["request"]["migration"] = False
+					self.client_message["vm"]["mac"] = mac
+					self.client_message["vm"]["target"] = hostName
+					self.client_message["vm"]["load"] = load
+					self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
+					print("sent: {}".format(self.client_message))
+				
+					# Receive response
+					print("waiting to receive login request")
+					self.sock.settimeout(5.0)
+					data, server = self.sock.recvfrom(512)
+					self.sock.settimeout(None)
+					server_message = json.loads(data.decode('utf-8'))
+					print("received: {} from {}".format(server_message, server))
+					acked = True
+				except:
+					print("Login Request Socket Timed out, Retry ...")
+					acked = False
+					time.sleep(30)
+		return hostName, ip, mac, load				
 
 '''
 	Main

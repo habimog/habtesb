@@ -5,9 +5,13 @@ import socket
 import json
 import threading
 import time
-import signal
 import sys
+import os
+import signal
 import logging
+from multiprocessing import Process
+from copy import deepcopy
+
 from utils import *
 import calibrate
 
@@ -17,7 +21,7 @@ logging.basicConfig(filename="/var/tmp/server.log",
 
 ''' Server
 '''
-class Server():
+class Server(object):
 	def __init__(self, initialTemp, maxTemp):
 		# Calibration temperature 
 		self.calibrationTemp = initialTemp
@@ -28,10 +32,17 @@ class Server():
 		# Server message containing max and host temperature
 		self.server_message = {"maxTemp" : maxTemp, "hostTemp" : 0.0} 
 
+		# List of VMs running on server with their corresponging load
+		self.vms = {} 
+
+		# Python create mutex
+		self.my_mutex = threading.Lock()
+
 		# Create a UDP socket and bind the socket to the port
 		self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.plot_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		
+		# Ports
 		self.client_port = 10000
 		self.plot_port = 10002
 		
@@ -48,6 +59,10 @@ class Server():
 		logging.debug("Server Exited")
 
 	def run(self):
+		# Handle login
+		loginThread = threading.Thread(target=self._handleLogin)
+		loginThread.start()
+
 		# Handle plot
 		plotThread = threading.Thread(target=self._handlePlot)
 		plotThread.start()
@@ -58,6 +73,22 @@ class Server():
 
 		clientThread.join()
 		plotThread.join()
+		loginThread.join()
+
+	def _handleLogin(self):
+		while True:
+			logging.debug("---------------------- handleLogin ---------------")
+			
+			# Delete VMs Loggedout
+			vms = getVmsLoggedin()
+			self.my_mutex.acquire()
+			loggedoutVms = [vm for vm in self.vms if vm not in vms]
+			for vm in loggedoutVms:
+				logging.info("VM: {} Loggedout".format(vm))
+				del self.vms[vm]
+			logging.debug("Logged in clients = {}".format(self.vms))
+			self.my_mutex.release()
+			time.sleep(15)
 
 	def _handlePlot(self):
 		while True:
@@ -67,10 +98,15 @@ class Server():
 
 			# Server plot data
 			logging.info("Received server plot data request")
-			plotData = {} #SERVER_PLOT_DATA
+			plotData = deepcopy(SERVER_PLOT_DATA)
 			hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
 			plotData["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
 			plotData["numVms"] = getNumberOfVms()
+
+			self.my_mutex.acquire()
+			for vm, load in self.vms.items():
+				plotData["vmLoads"][load] += 1
+			self.my_mutex.release()
 
 			sent = self.plot_socket.sendto(json.dumps(plotData).encode('utf-8'), address)
 			logging.info("Sent {} to {}".format(plotData, address))
@@ -78,33 +114,59 @@ class Server():
 	def _handleClient(self):
 		while True:
 			logging.debug("---------------------- handleClient ---------------")
-			logging.debug("Waiting to receive client message")
 			
+			# Get VM message
+			logging.debug("Waiting to receive client message")
 			data, address = self.client_socket.recvfrom(512)
 			client_message = json.loads(data.decode('utf-8'))
 			logging.info("Received {} from {}".format(client_message, address))
 
-			if client_message["request"]["temperature"]:
-				logging.debug("Received Temperature request client message")
-				hostTemp = getHostTemp() - self.calibrationTemp
-				self.server_message["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
+			# Get VM Domain Name
+			vm = getVmName(client_message["vm"]["mac"]) 
+			logging.info("Deduced VmName = {} from VmMac = {}".format(vm, client_message["vm"]["mac"]))
+
+			# Process Client Message
+			if vm != "":
+				if client_message["request"]["login"]:
+					# Register VM
+					vmLoad = client_message["vm"]["load"]
+					if vmLoad in SERVER_PLOT_DATA["vmLoads"]:
+						logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
+						self.my_mutex.acquire()
+						self.vms[vm] = vmLoad
+						self.my_mutex.release()
+
+						# Send Response
+						sent = self.client_socket.sendto(json.dumps(client_message).encode('utf-8'), address)
+						logging.info("Sent {} back to {}".format(client_message, address))
+					else:
+						logging.error("VM Load not in SERVER_PLOT_DATA")
+				if client_message["request"]["temperature"]:
+					# Send Response
+					hostTemp = getHostTemp() - self.calibrationTemp
+					self.server_message["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
+					sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
+					logging.info("Sent {} back to {}".format(self.server_message, address))
+				elif client_message["request"]["migration"]:
+					# MigrateVm
+					target = client_message["vm"]["target"]
+					migrationThread = threading.Thread(target=migrateVm, args=[vm, target])
+					migrationThread.setDaemon(True)
+					migrationThread.start()
+					migrationThread.join()
+					logging.debug("migrated {} to {}".format(vm, target))
 				
-				sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
-				logging.info("Sent {} back to {}".format(self.server_message, address))
-			elif client_message["request"]["migration"]:
-				logging.debug("Received Migration request client message")
-				vm = getVmName(client_message["vm"]["mac"])
-				target = client_message["vm"]["target"]
+					# Delete VM Load
+					self.my_mutex.acquire()
+					if vm in self.vms:
+						logging.info("Deleted VM: {} Load: {}".format(vm, self.vms[vm]))
+						del self.vms[vm]
+					self.my_mutex.release()
 				
-				# MigrateVm
-				migrationThread = threading.Thread(target=migrateVm, args=[vm, target])
-				migrationThread.setDaemon(True)
-				migrationThread.start()
-				migrationThread.join()
-				
-				logging.debug("migrated {} to {}".format(vm, target))
+				else:
+					logging.error("Wrong VM Request Message")
 			else:
-				logging.error("ERROR")
+				logging.error("VM Domain-Name did not deduced correctly")
 
 ''' Main
 '''
@@ -114,7 +176,7 @@ if __name__ == "__main__":
 	
 	# Get calibration temperature 
 	initialTemp = calibrate.Calibrate(600).getCalibrationTemp() 
-	maxTemp = 360
+	maxTemp = 290 # for 30 vma @100% load
 	logging.info("Initial Average Host Temperature = {} and maxTemp = {}".format(initialTemp, maxTemp))
 
 	# Start Server 

@@ -4,7 +4,6 @@ from utils import getHostTemp
 from multiprocessing import Process, Queue
 import time
 
-
 class Calibrate():
 	def __init__(self, timeout=600):
 		self.timeout = timeout

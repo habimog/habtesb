@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import subprocess
-from uuid import getnode as get_mac
 
 SERVERS = {
 	"trident1.vlab.cs.hioa.no" : "128.39.120.89",
@@ -11,12 +10,14 @@ SERVERS = {
 
 CLIENT_MESSAGE = {
 	"request" : {
+		"login" : False,
 		"temperature" : False,
 		"migration" : False
 	},
 	"vm" : {
 		"mac" : "",
-		"target" : ""
+		"target" : "",
+		"load" : 0
 	},
 	"prob" : {
 		"trident1.vlab.cs.hioa.no" : 0.0,
@@ -25,10 +26,17 @@ CLIENT_MESSAGE = {
 	}
 }
 
+SERVER_MESSAGE = {
+	"trident1.vlab.cs.hioa.no" : 0.0,
+	"trident2.vlab.cs.hioa.no" : 0.0,
+	"trident3.vlab.cs.hioa.no" : 0.0
+}
+ 
 def getHostName():
 	hostName = ""
-	for key, value in SERVERS.items():	
-		if(int(subprocess.check_output("sudo traceroute -n %s | tail -n+2 | awk '{ print $2 }' | wc -l" % (value), shell=True).decode('UTF-8').rstrip("\n")) == 1):
+	for key, value in SERVERS.items():
+		cmd = "sudo traceroute -n %s | tail -n+2 | awk '{ print $2 }' | wc -l" % (value)	
+		if(int(subprocess.check_output(cmd, shell=True).decode('UTF-8').rstrip("\n")) == 1):
 			hostName = key
 			break
 	return hostName
@@ -40,5 +48,10 @@ def getHostIp(hostName):
 	return hostIp
 
 def getVmMac():
-	mac = get_mac()
-	return ':'.join(("%012x" % mac)[i:i+2] for i in range(0, 12, 2))
+	mac = subprocess.check_output("sudo ifconfig | grep 'HWaddr' | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
+	return mac.lower()
+
+def getLoad():
+	load = subprocess.check_output("sudo ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
+	print("Load = {}".format(load))
+	return load

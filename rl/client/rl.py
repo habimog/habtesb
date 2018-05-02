@@ -23,7 +23,7 @@ class RlAgent():
     ''' Choose Action 
     '''
     def takeAction(self): 
-        r = random.uniform(0, 1) 
+        r = random.uniform(0.0, 1.0) 
         print("random number picked from uniform distribution: {}".format(r))
         
         sorted_prob = [(k, self.prob[k]) for k in sorted(self.prob, key=self.prob.get, reverse=True)]
@@ -71,15 +71,12 @@ class RlAgent():
         @param hostTemp: host temperature 
     '''
     def _getFeedback(self, maxTemp, hostTemp):
-        feedback = 1 - (hostTemp / maxTemp)
-        return feedback if feedback >= 0 else 0
+        feedback = 1.0 - (hostTemp / maxTemp)
+        return feedback if feedback >= 0.0 else 0.0
 
-''' Main
 '''
 if __name__ == "__main__":
-    maxTemp = 100
-    hostTemp = 10
-
     agent = RlAgent()
     action = agent.takeAction()
-    agent.learn(action, maxTemp, hostTemp)
+    agent.learn(action, 300.0, 100.0)
+'''

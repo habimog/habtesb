@@ -19,7 +19,8 @@ logging.basicConfig(filename="/var/tmp/server.log",
 	level=logging.DEBUG,
 	format="%(asctime)s:%(levelname)s:%(message)s")
 
-# Server
+''' Server
+'''
 class Server(object):
 	def __init__(self, initialTemp):
 		# Calibration temperature
@@ -197,6 +198,7 @@ class Server(object):
 					migrationThread.setDaemon(True)
 					migrationThread.start()
 					migrationThread.join()
+					logging.debug("migrated {} to {}".format(vm, target))
 
 					# Delete VM Load
 					self.my_mutex.acquire()

@@ -10,12 +10,14 @@ SERVERS = {
 
 CLIENT_MESSAGE = {
 	"request" : {
+		"login" : False,
 		"temperature" : False,
 		"migration" : False
 	},
 	"vm" : {
 		"mac" : "",
-		"target" : ""
+		"target" : "",
+		"load" : 0
 	},
 	"prob" : {
 		"trident1.vlab.cs.hioa.no" : 0.0,
@@ -24,20 +26,16 @@ CLIENT_MESSAGE = {
 	}
 }
 
-SERVER_PLOT_PORT = {
-	"trident1.vlab.cs.hioa.no" : 5001,
-	"trident2.vlab.cs.hioa.no" : 5002,
-	"trident3.vlab.cs.hioa.no" : 5003
+SERVER_PLOT_DATA = {
+	"hostTemp" : 0.0,
+    "numVms" : 0,
+	"vmLoads" : { 
+		"25"  : 0,
+		"50"  : 0,
+		"75"  : 0,
+		"100" : 0
+	}
 }
-
-# Get VM name from MAC Address
-def getVmName(mac):
-	vms = subprocess.check_output("virsh list | awk '{ print $2 }'| tail -n +3 | head -n -1", shell=True).decode('UTF-8')
-	for vm in vms.splitlines():
-		vm_mac = subprocess.check_output("virsh domiflist %s | awk '{ print $5 }' | tail -n +3 | head -n -1" % (vm), shell=True).decode('UTF-8').rstrip("\n")
-		if(mac == vm_mac):
-			return vm
-	return ""
 
 # Get server temperature
 def getHostTemp():
@@ -72,15 +70,23 @@ def migrateVm(vm, target):
 	output = subprocess.check_call(cmd, shell=True)
 	return output
 
-# Get no. of VMs running on the host
-def getNumberOfVms():
-	numOfVm = subprocess.check_output("virsh list | awk '{ print $2 }' | tail -n +3 | head -n -1 | wc -l", shell=True).decode('UTF-8')
-	return int(numOfVm)
-
 # get list of vms logged in
 def getVmsLoggedin():
 	vms = subprocess.check_output("virsh list | awk '{ print $2 }' | tail -n +3 | head -n -1", shell=True).decode('UTF-8').splitlines()
 	return list(vms)
+
+# Get VM name from MAC Address
+def getVmName(mac):
+	vms = getVmsLoggedin()
+	for vm in vms:
+		vm_mac = subprocess.check_output("virsh domiflist %s | awk '{ print $5 }' | tail -n +3 | head -n -1" % (vm), shell=True).decode('UTF-8').rstrip("\n")
+		if(mac == vm_mac):
+			return vm
+	return ""
+
+# Get no. of VMs running on the host
+def getNumberOfVms():
+	return len(getVmsLoggedin())
 
 # Get No. of NUMA nodes
 def getNumberOfNodes():

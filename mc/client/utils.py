@@ -29,15 +29,11 @@ SERVER_MESSAGE = {
 
 def getHostName():
 	hostName = ""
-	for key, value in SERVERS.items():	
-		host = subprocess.check_output("sudo traceroute %s | tail -n+2 | awk '{ print $2 }' | head -1" % (value), shell=True).decode('UTF-8').rstrip("\n")
-		print("host = {} key = {} value = {}".format(host, key, value))
-		if(host in SERVERS):
-			hostName = host
-			break
-		elif(host == "*" or host != "192.168.122.1"):
-			print("host deduced to be = {}".format(key))
+	for key, value in SERVERS.items():
+		cmd = "sudo traceroute -n %s | tail -n+2 | awk '{ print $2 }' | wc -l" % (value)	
+		if(int(subprocess.check_output(cmd, shell=True).decode('UTF-8').rstrip("\n")) == 1):
 			hostName = key
+			break
 	return hostName
 
 def getHostIp(hostName):

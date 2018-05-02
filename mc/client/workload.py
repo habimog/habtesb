@@ -29,7 +29,8 @@ class PeriodicTask(object):
 def job(timeout, load):
 	cmd = "stress-ng --cpu 1 --cpu-method matrixprod --timeout %s --cpu-load %s &" % (timeout, load)
 	output = subprocess.check_call(cmd, shell=True)
-
+	return output
+	
 '''
 	Main
 '''
