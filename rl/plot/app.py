@@ -6,6 +6,7 @@ from bokeh.models import ColumnDataSource, ranges, LabelSet
 from bokeh.models import DatetimeTickFormatter
 
 from datetime import datetime
+from copy import deepcopy
 from utils import *
 
 formatter = DatetimeTickFormatter(
@@ -89,7 +90,27 @@ figLoads.vbar(x=dodge('loads',  0.25, range=figLoads.x_range), top='trident3',
 figLoads.x_range.range_padding = 0.1
 figLoads.xgrid.grid_line_color = None
 figLoads.legend.location = "top_left"
-figLoads.legend.orientation = "horizontal"			
+figLoads.legend.orientation = "horizontal"	
+
+
+# Plot VMs Probabilities
+probTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
+figProbs = figure(x_axis_type="datetime", plot_width=1000, plot_height=500,
+			x_axis_label = "@timestamp per 30 seconds", y_axis_label = "Probability",
+			y_range=(0, 1), title="VM Probability", tools=TOOLS)
+
+figProbs.circle_cross(source=probTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
+figProbs.line(source=probTemp, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
+
+figProbs.asterisk(source=probTemp, x="x", y="trident2", legend=value("trident2"), size=7, alpha=.85, color="blue")
+figProbs.line(source=probTemp, x="x", y="trident2", legend=value("trident2"), alpha=.85, color="blue")
+
+figProbs.inverted_triangle(source=probTemp, x="x", y="trident3", legend=value("trident3"), size=7, alpha=.85, color="red")
+figProbs.line(source=probTemp, x="x", y="trident3", legend=value("trident3"), alpha=.85, color="red")
+
+figProbs.xaxis.formatter = formatter
+figProbs.legend.orientation = "horizontal"
+figProbs.legend.location = "top_left"		
 
 # Periodic callback
 def update():
@@ -119,9 +140,9 @@ def update():
 		sourceVms.stream(vms_data, rollover=200)
 
 		# Update VM loads
-		trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]	
-		trident2VMloads = data["trident2.vlab.cs.hioa.no"]["vmLoads"] if "trident2.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]
-		trident3VMloads = data["trident3.vlab.cs.hioa.no"]["vmLoads"] if "trident3.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]
+		trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vmLoads"])	
+		trident2VMloads = data["trident2.vlab.cs.hioa.no"]["vmLoads"] if "trident2.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vmLoads"])
+		trident3VMloads = data["trident3.vlab.cs.hioa.no"]["vmLoads"] if "trident3.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vmLoads"])
 
 		load_data = {
 			'loads'    : loads,
@@ -131,8 +152,28 @@ def update():
 		}
 		sourceLoads.stream(load_data, rollover=len(loads))
 
-# Add a periodic callback to be run every 15 second
+		# Update VM Probabilities
+		trident1VMs = data["trident1.vlab.cs.hioa.no"]["vms"] if "trident1.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vms"])	
+		trident2VMs = data["trident2.vlab.cs.hioa.no"]["vms"] if "trident2.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vms"])	
+		trident3VMs = data["trident3.vlab.cs.hioa.no"]["vms"] if "trident3.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vms"])	
+
+		for vms in [trident1VMs, trident2VMs, trident3VMs]:
+			if vms:
+				found = False
+				for vm in vms:
+					if vm['vm'] == 'vm1':
+						prob_data = dict(x=[x], 
+										trident1=[vm['prob']['trident1.vlab.cs.hioa.no']],
+										trident2=[vm['prob']['trident2.vlab.cs.hioa.no']],
+										trident3=[vm['prob']['trident3.vlab.cs.hioa.no']])
+						probTemp.stream(prob_data, rollover=200)	
+						found = True
+						break
+				if found: break
+
+# Add a periodic callback to be run every 30 second
 curdoc().add_root(figTemp)
 curdoc().add_root(figVms)
 curdoc().add_root(figLoads)
+curdoc().add_root(figProbs)
 curdoc().add_periodic_callback(update, 30000)
