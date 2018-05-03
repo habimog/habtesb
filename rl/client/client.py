@@ -96,7 +96,7 @@ class Client(object):
 		ip = getHostIp(hostName)
 		mac = getVmMac()
 		load = getLoad()
-		print('VM is at: {}, on {}'.format(hostName, (ip, self.port))
+		print('VM is at: {}, on {}'.format(hostName, (ip, self.port)))
 		print('Load: {}, Load Changed: {}'.format(load, self.load != load))
 
 		# Send Login request / Load change notification
