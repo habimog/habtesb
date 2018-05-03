@@ -69,19 +69,19 @@ figLoads = figure(x_range=loads, y_range=(0, 20),
 			title="VM Load Count", tools=TOOLS)
 
 tr1labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident1', text='trident1', level='glyph',
-        x_offset=-5, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=5, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr1labels)
 figLoads.vbar(x=dodge('loads', -0.25, range=figLoads.x_range), top='trident1', 
 			width=0.2, source=sourceLoads, color="peru", legend=value("trident1"))
 
 tr2labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident2', text='trident2', level='glyph',
-        x_offset=37, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=47, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr2labels)
 figLoads.vbar(x=dodge('loads',  0.0,  range=figLoads.x_range), top='trident2', 
 			width=0.2, source=sourceLoads, color="blue", legend=value("trident2"))
 
 tr3labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident3', text='trident3', level='glyph',
-        x_offset=79, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=89, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr3labels)
 figLoads.vbar(x=dodge('loads',  0.25, range=figLoads.x_range), top='trident3', 
 			width=0.2, source=sourceLoads, color="red", legend=value("trident3"))
