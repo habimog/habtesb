@@ -9,7 +9,6 @@ import sys
 import os
 import signal
 import logging
-from multiprocessing import Process
 from copy import deepcopy
 
 from utils import *

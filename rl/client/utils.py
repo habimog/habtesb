@@ -35,9 +35,12 @@ def getHostName():
 	hostName = ""
 	for key, value in SERVERS.items():
 		cmd = "sudo traceroute -n %s | tail -n+2 | awk '{ print $2 }' | wc -l" % (value)	
-		if(int(subprocess.check_output(cmd, shell=True).decode('UTF-8').rstrip("\n")) == 1):
-			hostName = key
-			break
+		try:
+			if(int(subprocess.check_output(cmd, shell=True).decode('UTF-8').rstrip("\n")) == 1):
+				hostName = key
+				break
+		except subprocess.CalledProcessError as e:
+			print("ERROR: : {reason}".format(reason=e))
 	return hostName
 
 def getHostIp(hostName):
@@ -47,10 +50,18 @@ def getHostIp(hostName):
 	return hostIp
 
 def getVmMac():
-	mac = subprocess.check_output("sudo ifconfig | grep 'HWaddr' | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
-	return mac.lower()
+	try:
+		mac = subprocess.check_output("sudo ifconfig | grep 'HWaddr' | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
+		return mac.lower()
+	except subprocess.CalledProcessError as e:
+		print("ERROR: : {reason}".format(reason=e))
+	return ""
 
 def getLoad():
-	load = subprocess.check_output("sudo ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
-	print("Load = {}".format(load))
-	return load
+	try:
+		load = subprocess.check_output("sudo ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
+		print("Load = {}".format(load))
+		return load
+	except subprocess.CalledProcessError as e:
+		print("ERROR: : {reason}".format(reason=e))
+	return 0

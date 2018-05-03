@@ -17,8 +17,8 @@ formatter = DatetimeTickFormatter(
 
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figTemp = figure(x_axis_type="datetime", plot_width=800, plot_height=500,
-			x_axis_label = "@timestamp per 15 seconds", y_axis_label = "NUMA Node Temperature",
+figTemp = figure(x_axis_type="datetime", plot_width=1000, plot_height=500,
+			x_axis_label = "@timestamp per 30 seconds", y_axis_label = "NUMA Node Temperature",
 			y_range=(-5, 40), title="Temperature", tools=TOOLS)
 
 figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
@@ -36,8 +36,8 @@ figTemp.legend.location = "top_left"
 
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figVms = figure(x_axis_type="datetime", plot_width=800, plot_height=400,
-			x_axis_label = "@timestamp per 15 seconds", y_axis_label = "VM numbers",
+figVms = figure(x_axis_type="datetime", plot_width=1000, plot_height=400,
+			x_axis_label = "@timestamp per 30 seconds", y_axis_label = "VM numbers",
 			y_range=(-5, 32), title="Number Of VMs", tools=TOOLS)
 
 figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
@@ -64,7 +64,7 @@ data = {
 }
 sourceLoads = ColumnDataSource(data=data)
 figLoads = figure(x_range=loads, y_range=(0, 20), 
-			plot_width=800, plot_height=400, 
+			plot_width=1000, plot_height=400, 
 			x_axis_label = "CPU Load (%)", y_axis_label = "Number of Loads",
 			title="VM Load Count", tools=TOOLS)
 
@@ -135,4 +135,4 @@ def update():
 curdoc().add_root(figTemp)
 curdoc().add_root(figVms)
 curdoc().add_root(figLoads)
-curdoc().add_periodic_callback(update, 15000)
+curdoc().add_periodic_callback(update, 30000)

@@ -9,7 +9,6 @@ import sys
 import os
 import signal
 import logging
-from multiprocessing import Process
 from copy import deepcopy
 
 from utils import *
@@ -30,7 +29,8 @@ class Server(object):
 		signal.signal(signal.SIGINT, self._signal_handler)
 
 		# Server message containing max and host temperature
-		self.server_message = {"maxTemp" : maxTemp, "hostTemp" : 0.0} 
+		self.server_message = deepcopy(SERVER_MESSAGE) 
+		self.server_message["maxTemp"] = maxTemp 
 
 		# List of VMs running on server with their corresponging load
 		self.vms = {} 
@@ -104,8 +104,11 @@ class Server(object):
 			plotData["numVms"] = getNumberOfVms()
 
 			self.my_mutex.acquire()
-			for vm, load in self.vms.items():
-				plotData["vmLoads"][load] += 1
+			#for vm, load in self.vms.items():
+			#	plotData["vmLoads"][load] += 1
+			for vm, value in self.vms.items():
+				plotData["vmLoads"][value["load"]] += 1
+				plotData["vms"].append(self.vms[vm])
 			self.my_mutex.release()
 
 			sent = self.plot_socket.sendto(json.dumps(plotData).encode('utf-8'), address)
@@ -133,7 +136,12 @@ class Server(object):
 					if vmLoad in SERVER_PLOT_DATA["vmLoads"]:
 						logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
 						self.my_mutex.acquire()
-						self.vms[vm] = vmLoad
+						#self.vms[vm] = vmLoad
+						self.vms[vm] = {
+							"vm" : vm,
+							"load" : vmLoad,
+							"prob" : client_message["prob"]
+						}
 						self.my_mutex.release()
 
 						# Send Response
@@ -159,7 +167,7 @@ class Server(object):
 					# Delete VM Load
 					self.my_mutex.acquire()
 					if vm in self.vms:
-						logging.info("Deleted VM: {} Load: {}".format(vm, self.vms[vm]))
+						logging.info("Deleted VM: {}".format(vm))
 						del self.vms[vm]
 					self.my_mutex.release()
 				

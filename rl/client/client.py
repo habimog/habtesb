@@ -47,6 +47,9 @@ class Client(object):
 				self.client_message["vm"]["mac"] = mac
 				self.client_message["vm"]["target"] = action
 				self.client_message["vm"]["load"] = load
+				self.client_message["prob"]["trident1.vlab.cs.hioa.no"] = self.rlAgent.prob["trident1"]
+				self.client_message["prob"]["trident2.vlab.cs.hioa.no"] = self.rlAgent.prob["trident2"]
+				self.client_message["prob"]["trident3.vlab.cs.hioa.no"] = self.rlAgent.prob["trident3"]
 				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 				print("sent: {} to {}".format(self.client_message, action))
 				
@@ -93,7 +96,7 @@ class Client(object):
 		ip = getHostIp(hostName)
 		mac = getVmMac()
 		load = getLoad()
-		print('VM is on host: {}, ip: {} port: {}'.format(hostName, ip, self.port))
+		print('VM is at: {}, on {}'.format(hostName, (ip, self.port))
 		print('Load: {}, Load Changed: {}'.format(load, self.load != load))
 
 		# Send Login request / Load change notification
@@ -109,6 +112,9 @@ class Client(object):
 					self.client_message["vm"]["mac"] = mac
 					self.client_message["vm"]["target"] = hostName
 					self.client_message["vm"]["load"] = load
+					self.client_message["prob"]["trident1.vlab.cs.hioa.no"] = self.rlAgent.prob["trident1"]
+					self.client_message["prob"]["trident2.vlab.cs.hioa.no"] = self.rlAgent.prob["trident2"]
+					self.client_message["prob"]["trident3.vlab.cs.hioa.no"] = self.rlAgent.prob["trident3"]
 					self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 					print("sent: {}".format(self.client_message))
 				
