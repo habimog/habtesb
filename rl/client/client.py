@@ -53,8 +53,8 @@ class Client(object):
 				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 				print("sent: {} to {}".format(self.client_message, action))
 				
-				# Sleep for 120 sec, for migration to complete
-				time.sleep(120)
+				# Sleep for 30 sec, for migration to complete
+				time.sleep(30)
 			else:
 				print("VM choose to stay")
 
