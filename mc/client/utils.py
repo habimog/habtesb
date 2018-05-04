@@ -50,7 +50,7 @@ def getVmMac():
 		mac = subprocess.check_output("sudo ifconfig | grep 'HWaddr' | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
 		return mac.lower()
 	except subprocess.CalledProcessError as e:
-			print("ERROR: : {reason}".format(reason=e))
+		print("ERROR: : {reason}".format(reason=e))
 	return ""
 
 def getLoad():
@@ -59,6 +59,6 @@ def getLoad():
 		print("Load = {}".format(load))
 		return load
 	except subprocess.CalledProcessError as e:
-			print("ERROR: : {reason}".format(reason=e))
+		print("ERROR: : {reason}".format(reason=e))
 	return 0
 		
