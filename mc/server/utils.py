@@ -45,7 +45,7 @@ def getHostTemp():
         temp_float = [float(temp) for temp in temp_str]
         return sum(temp_float)
     except subprocess.CalledProcessError as e:
-		print("ERROR: : {reason}".format(reason=e))
+	print("ERROR: : {reason}".format(reason=e))
     return 0.0
 
 # Get server full hostname
@@ -54,7 +54,7 @@ def getHostName():
         host = subprocess.check_output("hostname --all-fqdns", shell=True).decode('UTF-8').rstrip(" \n")
         return host
     except subprocess.CalledProcessError as e:
-		print("ERROR: : {reason}".format(reason=e))
+	print("ERROR: : {reason}".format(reason=e))
     return ""
 
 # Get Host IP from hostname
@@ -79,7 +79,7 @@ def migrateVm(vm, target):
         cmd = "virsh migrate --live %s qemu+ssh://%s/system --undefinesource --persistent" % (vm, target)
         subprocess.check_call(cmd, shell=True)
     except subprocess.CalledProcessError as e:
-		print("ERROR: : {reason}".format(reason=e))
+	print("ERROR: : {reason}".format(reason=e))
 
 # get list of vms logged in
 def getVmsLoggedin():
@@ -87,7 +87,7 @@ def getVmsLoggedin():
         vms = subprocess.check_output("virsh list | awk '{ print $2 }' | tail -n +3 | head -n -1", shell=True).decode('UTF-8').splitlines()
         return list(vms)
     except subprocess.CalledProcessError as e:
-		print("ERROR: : {reason}".format(reason=e))
+	print("ERROR: : {reason}".format(reason=e))
     return []
 
 # Get VM name from MAC Address
@@ -98,7 +98,7 @@ def getVmName(mac):
             vm_mac = subprocess.check_output("virsh domiflist %s | awk '{ print $5 }' | tail -n +3 | head -n -1" % (vm), shell=True).decode('UTF-8').rstrip("\n")
             if(mac == vm_mac): return vm
         except subprocess.CalledProcessError as e:
-		    print("ERROR: : {reason}".format(reason=e))
+	    print("ERROR: : {reason}".format(reason=e))
     return ""
 
 # Get number of VMs running on the host
@@ -111,5 +111,5 @@ def getNumberOfNodes():
         numOfNodes = subprocess.check_output("numactl --hardware | grep 'nodes' | awk '{print $2}'", shell=True).decode('UTF-8').rstrip('\n')
         return int(numOfNodes)
     except subprocess.CalledProcessError as e:
-		print("ERROR: : {reason}".format(reason=e))
+	print("ERROR: : {reason}".format(reason=e))
     return 1
