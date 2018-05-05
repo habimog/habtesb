@@ -92,7 +92,7 @@ figLoads.legend.location = "top_left"
 figLoads.legend.orientation = "horizontal"	
 
 #
-csv = open('temperature.csv', 'w')
+csv = open('temperatureVO.csv', 'w')
 columnTitleRow = "time, trident1, trident2, trident3\n"
 csv.write(columnTitleRow)		
 
