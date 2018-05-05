@@ -21,16 +21,17 @@ logging.basicConfig(filename="/var/tmp/server.log",
 ''' Server
 '''
 class Server(object):
-	def __init__(self, initialTemp):
+	def __init__(self, initialTemp, deltaTemp):
 		# Calibration temperature
 		self.calibrationTemp = initialTemp
 
 		# Register Signal Handler
 		signal.signal(signal.SIGINT, self._signal_handler)
 
-		# Server message containing the temperature of all the servers
+		# Server message containing the temperature of all the servers and delta temperature
 		self.server_message = deepcopy(SERVER_MESSAGE)
-
+		self.server_message["deltaTemp"] = deltaTemp
+		
 		# List of VMs running on server with their corresponging load
 		self.vms = {} 
 
@@ -221,8 +222,10 @@ if __name__ == "__main__":
 	
 	# Get calibration temperature
 	initialTemp = calibrate.Calibrate(600).getCalibrationTemp() 
+	deltaTemp = 0.0
 	logging.info("Initial Average Host Temperature = {}".format(initialTemp))
 	print("Initial Average Host Temperature = {}".format(initialTemp))
 
 	# Start the Server
-	Server(initialTemp).run()
+	Server(initialTemp, deltaTemp).run()
+

@@ -22,6 +22,7 @@ CLIENT_MESSAGE = {
 }
 
 SERVER_MESSAGE = {
+	"deltaTemp" : 0.0,
 	"trident1.vlab.cs.hioa.no" : 0.0,
 	"trident2.vlab.cs.hioa.no" : 0.0,
 	"trident3.vlab.cs.hioa.no" : 0.0

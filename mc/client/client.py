@@ -15,7 +15,6 @@ class Client(object):
 		self.client_message = deepcopy(CLIENT_MESSAGE)
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.port = 10000
-		self.delta = 24.0 # delta temperature
 		self.login = True
 		self.load = 0
 
@@ -52,8 +51,9 @@ class Client(object):
 				# Process and make a decision
 				try:
 					hostTemp = server_message[hostName]
+					deltaTemp = server_message["deltaTemp"]
 					avgTemp = sum(server_message.values()) / len(server_message)
-					migrate = True if hostTemp > (avgTemp + self.delta) else False
+					migrate = True if hostTemp > (avgTemp + deltaTemp) else False
 					print("migrate? {}, AvgTemp = {}, HostTemp = {}".format(migrate, avgTemp, hostTemp))
 
 					# Update Login request

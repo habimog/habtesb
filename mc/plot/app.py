@@ -89,7 +89,12 @@ figLoads.vbar(x=dodge('loads',  0.25, range=figLoads.x_range), top='trident3',
 figLoads.x_range.range_padding = 0.1
 figLoads.xgrid.grid_line_color = None
 figLoads.legend.location = "top_left"
-figLoads.legend.orientation = "horizontal"			
+figLoads.legend.orientation = "horizontal"	
+
+#
+csv = open('temperature.csv', 'w')
+columnTitleRow = "time, trident1, trident2, trident3\n"
+csv.write(columnTitleRow)		
 
 # Periodic callback
 def update():
@@ -131,7 +136,11 @@ def update():
 		}
 		sourceLoads.stream(load_data, rollover=len(loads))
 
-# Add a periodic callback to be run every 15 second
+		#
+		row = x.strftime("%H:%M:%S") + "," + str(trident1Temp) + "," + str(trident2Temp) + "," + str(trident3Temp) + "\n"
+		csv.write(row)
+
+# Add a periodic callback to be run every 30 second
 curdoc().add_root(figTemp)
 curdoc().add_root(figVms)
 curdoc().add_root(figLoads)
