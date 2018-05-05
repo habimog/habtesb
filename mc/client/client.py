@@ -16,6 +16,7 @@ class Client(object):
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.port = 10000
 		self.login = True
+		self.delta = 0.0
 		self.load = 0
 
 	def run(self):
@@ -51,9 +52,8 @@ class Client(object):
 				# Process and make a decision
 				try:
 					hostTemp = server_message[hostName]
-					deltaTemp = server_message["deltaTemp"]
 					avgTemp = sum(server_message.values()) / len(server_message)
-					migrate = True if hostTemp > (avgTemp + deltaTemp) else False
+					migrate = True if hostTemp > (avgTemp + self.delta) else False
 					print("migrate? {}, AvgTemp = {}, HostTemp = {}".format(migrate, avgTemp, hostTemp))
 
 					# Update Login request
@@ -112,8 +112,9 @@ class Client(object):
 					self.sock.settimeout(5.0)
 					data, server = self.sock.recvfrom(512)
 					self.sock.settimeout(None)
-					server_message = json.loads(data.decode('utf-8'))
-					print("received: {} from {}".format(server_message, server))
+					client_message = json.loads(data.decode('utf-8'))
+					self.delta = client_message["vm"]["deltaTemp"]
+					print("received: {} from {}".format(client_message, server))
 					acked = True
 				except:
 					print("Login Request Socket Timed out, Retry ...")

@@ -24,13 +24,13 @@ class Server(object):
 	def __init__(self, initialTemp, deltaTemp):
 		# Calibration temperature
 		self.calibrationTemp = initialTemp
+		self.deltaTemp = deltaTemp
 
 		# Register Signal Handler
 		signal.signal(signal.SIGINT, self._signal_handler)
 
 		# Server message containing the temperature of all the servers and delta temperature
 		self.server_message = deepcopy(SERVER_MESSAGE)
-		self.server_message["deltaTemp"] = deltaTemp
 		
 		# List of VMs running on server with their corresponging load
 		self.vms = {} 
@@ -181,6 +181,7 @@ class Server(object):
 						self.my_mutex.release()
 
 						# Send Response
+						client_message["vm"]["deltaTemp"] = self.deltaTemp
 						sent = self.client_socket.sendto(json.dumps(client_message).encode('utf-8'), address)
 						logging.info("Sent {} back to {}".format(client_message, address))
 					else:

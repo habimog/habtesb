@@ -38,7 +38,7 @@ figTemp.legend.location = "top_left"
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figVms = figure(x_axis_type="datetime", plot_width=1000, plot_height=400,
 			x_axis_label = "@timestamp per 30 seconds", y_axis_label = "VM numbers",
-			y_range=(-5, 32), title="Number Of VMs", tools=TOOLS)
+			y_range=(-5, 20), title="Number Of VMs", tools=TOOLS)
 
 figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
 figVms.line(source=sourceVms, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
@@ -92,7 +92,7 @@ figLoads.legend.location = "top_left"
 figLoads.legend.orientation = "horizontal"	
 
 #
-csv = open('temperatureVO.csv', 'w')
+csv = open('temperature.csv', 'w')
 columnTitleRow = "time, trident1, trident2, trident3\n"
 csv.write(columnTitleRow)		
 

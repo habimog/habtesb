@@ -8,21 +8,7 @@ SERVERS = {
 	"trident3.vlab.cs.hioa.no" : "128.39.120.91"
 }
 
-CLIENT_MESSAGE = {
-	"request" : {
-		"login" : False,
-		"temperature" : False,
-		"migration" : False
-	},
-	"vm" : {
-		"mac" : "",
-		"target" : "",
-		"load" : 0
-	}
-}
-
 SERVER_MESSAGE = {
-	"deltaTemp" : 0.0,
 	"trident1.vlab.cs.hioa.no" : 0.0,
 	"trident2.vlab.cs.hioa.no" : 0.0,
 	"trident3.vlab.cs.hioa.no" : 0.0
@@ -36,6 +22,20 @@ SERVER_PLOT_DATA = {
 		"50"  : 0,
 		"75"  : 0,
 		"100" : 0
+	}
+}
+
+CLIENT_MESSAGE = {
+	"request" : {
+		"login" : False,
+		"temperature" : False,
+		"migration" : False
+	},
+	"vm" : {
+		"mac" : "",
+		"target" : "",
+		"load" : 0,
+		"deltaTemp" : 0.0
 	}
 }
 

@@ -8,6 +8,12 @@ SERVERS = {
 	"trident3.vlab.cs.hioa.no" : "128.39.120.91"
 }
 
+SERVER_MESSAGE = {
+	"trident1.vlab.cs.hioa.no" : 0.0,
+	"trident2.vlab.cs.hioa.no" : 0.0,
+	"trident3.vlab.cs.hioa.no" : 0.0
+}
+
 CLIENT_MESSAGE = {
 	"request" : {
 		"login" : False,
@@ -17,15 +23,9 @@ CLIENT_MESSAGE = {
 	"vm" : {
 		"mac" : "",
 		"target" : "",
-		"load" : 0
+		"load" : 0,
+		"deltaTemp" : 0.0
 	}
-}
-
-SERVER_MESSAGE = {
-	"deltaTemp" : 0.0,
-	"trident1.vlab.cs.hioa.no" : 0.0,
-	"trident2.vlab.cs.hioa.no" : 0.0,
-	"trident3.vlab.cs.hioa.no" : 0.0
 }
 
 def getHostName():
