@@ -20,13 +20,13 @@ class Client(object):
 		self.load = 0
 
 	def run(self):
-		time.sleep(120)
+		time.sleep(600)
 		while True:
 			# Send Client status
 			hostName, ip, mac, load = self._sendStatus()
 
 			# Wake VM randomly
-			rand_time = random.randint(60, 180)
+			rand_time = random.randint(60, 120)
 			print("Rand Time = {}".format(rand_time))
 			time.sleep(rand_time)
 

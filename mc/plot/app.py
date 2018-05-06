@@ -19,7 +19,7 @@ formatter = DatetimeTickFormatter(
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figTemp = figure(x_axis_type="datetime", plot_width=1000, plot_height=500,
 			x_axis_label = "@timestamp per 30 seconds", y_axis_label = "NUMA Node Temperature",
-			y_range=(-5, 40), title="Temperature", tools=TOOLS)
+			y_range=(-5, 45), title="Temperature", tools=TOOLS)
 
 figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
 figTemp.line(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
@@ -38,7 +38,7 @@ figTemp.legend.location = "top_left"
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figVms = figure(x_axis_type="datetime", plot_width=1000, plot_height=400,
 			x_axis_label = "@timestamp per 30 seconds", y_axis_label = "VM numbers",
-			y_range=(-5, 20), title="Number Of VMs", tools=TOOLS)
+			y_range=(-5, 35), title="Number Of VMs", tools=TOOLS)
 
 figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
 figVms.line(source=sourceVms, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
@@ -63,7 +63,7 @@ data = {
     'trident3' : [0, 0, 0, 0]
 }
 sourceLoads = ColumnDataSource(data=data)
-figLoads = figure(x_range=loads, y_range=(0, 20), 
+figLoads = figure(x_range=loads, y_range=(0, 35), 
 			plot_width=1000, plot_height=400, 
 			x_axis_label = "CPU Load (%)", y_axis_label = "Number of Loads",
 			title="VM Load Count", tools=TOOLS)
@@ -113,7 +113,7 @@ def update():
 		trident3Temp = data["trident3.vlab.cs.hioa.no"]["hostTemp"] if "trident3.vlab.cs.hioa.no" in data else 0.0
 
 		temp_data = dict(x=[x], trident1=[trident1Temp], trident2=[trident2Temp], trident3=[trident3Temp])
-		sourceTemp.stream(temp_data, rollover=200)
+		sourceTemp.stream(temp_data, rollover=300)
 
 		# Update VMs Number
 		trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if "trident1.vlab.cs.hioa.no" in data else 0	
@@ -121,7 +121,7 @@ def update():
 		trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if "trident3.vlab.cs.hioa.no" in data else 0
 		
 		vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
-		sourceVms.stream(vms_data, rollover=200)
+		sourceVms.stream(vms_data, rollover=300)
 
 		# Update VM loads
 		trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]	
