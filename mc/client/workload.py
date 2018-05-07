@@ -3,7 +3,7 @@
 
 from collections import deque
 from threading import Timer
-from random import shuffle
+#from random import shuffle
 import subprocess
 
 class PeriodicTask(object):
@@ -14,8 +14,8 @@ class PeriodicTask(object):
 		self.kwargs = kwargs
 	
 		# Initialize random load from list	
-		loadList = [25, 50, 75, 100]
-		shuffle(loadList)
+		loadList = [100, 50]
+		#shuffle(loadList)
 		self.load = deque(loadList)
 	
 	def run(self):
@@ -35,5 +35,5 @@ def job(timeout, load):
 	Main
 '''
 if __name__ == "__main__":
-	task = PeriodicTask(interval=1800, callback=job)
+	task = PeriodicTask(interval=3000, callback=job)
 	task.run()

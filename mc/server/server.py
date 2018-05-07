@@ -167,13 +167,12 @@ class Server(object):
 
 			# Get VM Domain Name
 			vm = getVmName(client_message["vm"]["mac"]) 
-			logging.info("Deduced VmName = {} from VmMac = {}".format(vm, client_message["vm"]["mac"]))
+			vmLoad = client_message["vm"]["load"]
 			
 			# Process Client Message
 			if vm != "":
 				if client_message["request"]["login"]:
-					# Register VM
-					vmLoad = client_message["vm"]["load"]
+					# Register VM Load
 					if vmLoad in SERVER_PLOT_DATA["vmLoads"]:
 						logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
 						self.my_mutex.acquire()
@@ -191,6 +190,10 @@ class Server(object):
 					self.my_mutex.acquire()
 					sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
 					logging.info("Sent {} back to {}".format(self.server_message, address))
+
+					# Update VM Load
+					logging.info("Updated VM: {} Load: {}".format(vm, vmLoad))
+					self.vms[vm] = vmLoad
 					self.my_mutex.release()
 				elif client_message["request"]["migration"]:
 					# Migrate VM
@@ -223,7 +226,7 @@ if __name__ == "__main__":
 	
 	# Get calibration temperature
 	initialTemp = calibrate.Calibrate(600).getCalibrationTemp() 
-	deltaTemp = 0.0
+	deltaTemp = 24.0
 	logging.info("Initial Average Host Temperature = {}".format(initialTemp))
 	print("Initial Average Host Temperature = {}".format(initialTemp))
 
