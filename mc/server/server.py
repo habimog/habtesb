@@ -223,7 +223,7 @@ if __name__ == "__main__":
 	
 	# Get calibration temperature
 	initialTemp = calibrate.Calibrate(600).getCalibrationTemp() 
-	deltaTemp = 0.0
+	deltaTemp = 24.0
 	logging.info("Initial Average Host Temperature = {}".format(initialTemp))
 	print("Initial Average Host Temperature = {}".format(initialTemp))
 
