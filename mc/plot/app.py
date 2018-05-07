@@ -17,9 +17,9 @@ formatter = DatetimeTickFormatter(
 
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figTemp = figure(x_axis_type="datetime", plot_width=1000, plot_height=500,
-			x_axis_label = "@timestamp per 30 seconds", y_axis_label = "NUMA Node Temperature",
-			y_range=(-5, 45), title="Temperature", tools=TOOLS)
+figTemp = figure(x_axis_type="datetime", plot_width=1200, plot_height=500,
+			x_axis_label = "@timestamp per minute", y_axis_label = "NUMA Node Temperature",
+			y_range=(-5, 50), title="Temperature", tools=TOOLS)
 
 figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
 figTemp.line(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
@@ -36,9 +36,9 @@ figTemp.legend.location = "top_left"
 
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figVms = figure(x_axis_type="datetime", plot_width=1000, plot_height=400,
-			x_axis_label = "@timestamp per 30 seconds", y_axis_label = "VM numbers",
-			y_range=(-5, 35), title="Number Of VMs", tools=TOOLS)
+figVms = figure(x_axis_type="datetime", plot_width=1200, plot_height=400,
+			x_axis_label = "@timestamp per minute", y_axis_label = "VM numbers", 
+			y_range=(-5, 40), title="Number Of VMs", tools=TOOLS)
 
 figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
 figVms.line(source=sourceVms, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
@@ -63,25 +63,26 @@ data = {
     'trident3' : [0, 0, 0, 0]
 }
 sourceLoads = ColumnDataSource(data=data)
-figLoads = figure(x_range=loads, y_range=(0, 35), 
-			plot_width=1000, plot_height=400, 
-			x_axis_label = "CPU Load (%)", y_axis_label = "Number of Loads",
+figLoads = figure(x_range=loads, y_range=(0, 40), 
+			plot_width=1200, plot_height=400, 
+			x_axis_label = "CPU Load (%)", 
+			y_axis_label = "Number of Loads", 
 			title="VM Load Count", tools=TOOLS)
 
 tr1labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident1', text='trident1', level='glyph',
-        x_offset=5, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=10, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr1labels)
 figLoads.vbar(x=dodge('loads', -0.25, range=figLoads.x_range), top='trident1', 
 			width=0.2, source=sourceLoads, color="peru", legend=value("trident1"))
 
 tr2labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident2', text='trident2', level='glyph',
-        x_offset=47, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=53, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr2labels)
 figLoads.vbar(x=dodge('loads',  0.0,  range=figLoads.x_range), top='trident2', 
 			width=0.2, source=sourceLoads, color="blue", legend=value("trident2"))
 
 tr3labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident3', text='trident3', level='glyph',
-        x_offset=89, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=94, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr3labels)
 figLoads.vbar(x=dodge('loads',  0.25, range=figLoads.x_range), top='trident3', 
 			width=0.2, source=sourceLoads, color="red", legend=value("trident3"))
@@ -113,7 +114,7 @@ def update():
 		trident3Temp = data["trident3.vlab.cs.hioa.no"]["hostTemp"] if "trident3.vlab.cs.hioa.no" in data else 0.0
 
 		temp_data = dict(x=[x], trident1=[trident1Temp], trident2=[trident2Temp], trident3=[trident3Temp])
-		sourceTemp.stream(temp_data, rollover=300)
+		sourceTemp.stream(temp_data, rollover=400)
 
 		# Update VMs Number
 		trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if "trident1.vlab.cs.hioa.no" in data else 0	
@@ -121,7 +122,7 @@ def update():
 		trident3numVms = data["trident3.vlab.cs.hioa.no"]["numVms"] if "trident3.vlab.cs.hioa.no" in data else 0
 		
 		vms_data = dict(x=[x], trident1=[trident1numVms], trident2=[trident2numVms], trident3=[trident3numVms])
-		sourceVms.stream(vms_data, rollover=300)
+		sourceVms.stream(vms_data, rollover=400)
 
 		# Update VM loads
 		trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]	
@@ -140,8 +141,8 @@ def update():
 		row = x.strftime("%H:%M:%S") + "," + str(trident1Temp) + "," + str(trident2Temp) + "," + str(trident3Temp) + "\n"
 		csv.write(row)
 
-# Add a periodic callback to be run every 30 second
+# Add a periodic callback to be run every 60 second
 curdoc().add_root(figTemp)
 curdoc().add_root(figVms)
 curdoc().add_root(figLoads)
-curdoc().add_periodic_callback(update, 30000)
+curdoc().add_periodic_callback(update, 60000)
