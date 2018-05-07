@@ -33,6 +33,9 @@ figTemp.line(source=sourceTemp, x="x", y="trident3", legend=value("trident3"), a
 figTemp.xaxis.formatter = formatter
 figTemp.legend.orientation = "horizontal"
 figTemp.legend.location = "top_left"
+#figTemp.title.text_font_size = '20pt'
+#figTemp.xaxis.axis_label_text_font_size = "15pt"
+#figTemp.yaxis.axis_label_text_font_size = "15pt"
 
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
@@ -52,6 +55,9 @@ figVms.line(source=sourceVms, x="x", y="trident3", legend=value("trident3"), alp
 figVms.xaxis.formatter = formatter
 figVms.legend.orientation = "horizontal"
 figVms.legend.location = "top_left"
+#figVms.title.text_font_size = '20pt'
+#figVms.xaxis.axis_label_text_font_size = "15pt"
+#figVms.yaxis.axis_label_text_font_size = "15pt"
 
 # Plot VM Loads
 # https://bokeh.pydata.org/en/latest/docs/user_guide/categorical.html
@@ -91,6 +97,9 @@ figLoads.x_range.range_padding = 0.1
 figLoads.xgrid.grid_line_color = None
 figLoads.legend.location = "top_left"
 figLoads.legend.orientation = "horizontal"	
+#figLoads.title.text_font_size = '20pt'
+#figLoads.xaxis.axis_label_text_font_size = "15pt"
+#figLoads.yaxis.axis_label_text_font_size = "15pt"
 
 #
 csv = open('temperature.csv', 'w')
