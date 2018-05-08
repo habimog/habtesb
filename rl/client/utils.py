@@ -8,6 +8,11 @@ SERVERS = {
 	"trident3.vlab.cs.hioa.no" : "128.39.120.91"
 }
 
+SERVER_MESSAGE = {
+	"maxTemp"  : 0.0,
+	"hostTemp" : 0.0
+}
+
 CLIENT_MESSAGE = {
 	"request" : {
 		"login" : False,
@@ -24,11 +29,6 @@ CLIENT_MESSAGE = {
 		"trident2.vlab.cs.hioa.no" : 0.0,
 		"trident3.vlab.cs.hioa.no" : 0.0
 	}
-}
-
-SERVER_MESSAGE = {
-	"maxTemp"  : 0.0,
-	"hostTemp" : 0.0
 }
  
 def getHostName():
@@ -61,7 +61,7 @@ def getLoad():
 	try:
 		load = subprocess.check_output("sudo ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
 		print("Load = {}".format(load))
-		return load
+		return int(load)
 	except subprocess.CalledProcessError as e:
 		print("ERROR: : {reason}".format(reason=e))
 	return 0

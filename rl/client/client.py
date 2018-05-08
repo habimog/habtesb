@@ -21,9 +21,9 @@ class Client(object):
 		self.load = 0
 
 	def run(self):
-		time.sleep(120)
 		# Send Client status
 		hostName, ip, mac, load = self._sendStatus()
+		time.sleep(600)
 
 		while True:
 			# VM wakes randomly
@@ -99,9 +99,11 @@ class Client(object):
 		print('VM is at: {}, on {}'.format(hostName, (ip, self.port)))
 		print('Load: {}, Load Changed: {}'.format(load, self.load != load))
 
-		# Send Login request / Load change notification
-		if(self.login or self.load != load):
+		# Send Login request/Load change notification
+		loadChanged = (self.load != 0) and (self.load != load)
+		if(self.login or loadChanged):
 			self.load = load
+			self.login = False
 			acked = False
 			while not acked:
 				try:
@@ -129,7 +131,13 @@ class Client(object):
 				except:
 					print("Login Request Socket Timed out, Retrying ...")
 					acked = False
-					time.sleep(30)
+					time.sleep(random.randint(5, 30))
+			
+			# Pause for 10min if Load changed
+			if loadChanged:
+				print("Load Changed, Pause for 10 minutes.")
+				time.sleep(600)
+
 		return hostName, ip, mac, load
 
 ''' 

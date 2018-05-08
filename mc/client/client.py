@@ -24,13 +24,13 @@ class Client(object):
 		hostName, ip, mac, load = self._sendStatus()
 		time.sleep(600)
 		while True:
-			# Update Client status
-			hostName, ip, mac, load = self._sendStatus()
-
 			# Wake VM randomly
 			rand_time = random.randint(30, 120)
 			print("Rand Time = {}".format(rand_time))
 			time.sleep(rand_time)
+
+			# Update Client status
+			hostName, ip, mac, load = self._sendStatus()
 
 			try:
 				# Request Temperature
@@ -97,6 +97,7 @@ class Client(object):
 		loadChanged = (self.load != 0) and (self.load != load)
 		if(self.login or loadChanged):
 			self.load = load
+			self.login = False
 			acked = False
 			while not acked:
 				try:
@@ -122,12 +123,13 @@ class Client(object):
 				except:
 					print("Login Request Socket Timed out, Retry ...")
 					acked = False
-					time.sleep(30)
+					time.sleep(random.randint(5, 30))
 
-				# Pause for 10min if Load changed
+			# Pause for 10min if Load changed
 			if loadChanged:
 				print("Load Changed, Pause for 10 minutes.")
 				time.sleep(600)
+
 		return hostName, ip, mac, load				
 
 '''

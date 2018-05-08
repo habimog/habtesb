@@ -114,7 +114,7 @@ class Server(object):
 
 			self.my_mutex.acquire()
 			for vm, load in self.vms.items():
-				plotData["vmLoads"][load] += 1
+				plotData["vmLoads"][str(load)] += 1
 			self.my_mutex.release()
 
 			sent = self.plot_socket.sendto(json.dumps(plotData).encode('utf-8'), address)
@@ -173,7 +173,7 @@ class Server(object):
 			if vm != "":
 				if client_message["request"]["login"]:
 					# Register VM Load
-					if vmLoad in SERVER_PLOT_DATA["vmLoads"]:
+					if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
 						logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
 						self.my_mutex.acquire()
 						self.vms[vm] = vmLoad
@@ -192,8 +192,11 @@ class Server(object):
 					logging.info("Sent {} back to {}".format(self.server_message, address))
 
 					# Update VM Load
-					logging.info("Updated VM: {} Load: {}".format(vm, vmLoad))
-					self.vms[vm] = vmLoad
+					if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
+						logging.info("Updated VM: {} Load: {}".format(vm, vmLoad))
+						self.vms[vm] = vmLoad
+					else:
+						logging.error("VM Load not in SERVER_PLOT_DATA")
 					self.my_mutex.release()
 				elif client_message["request"]["migration"]:
 					# Migrate VM

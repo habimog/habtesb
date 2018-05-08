@@ -104,10 +104,8 @@ class Server(object):
 			plotData["numVms"] = getNumberOfVms()
 
 			self.my_mutex.acquire()
-			#for vm, load in self.vms.items():
-			#	plotData["vmLoads"][load] += 1
 			for vm, value in self.vms.items():
-				plotData["vmLoads"][value["load"]] += 1
+				plotData["vmLoads"][str(value["load"])] += 1
 				plotData["vms"].append(self.vms[vm])
 			self.my_mutex.release()
 
@@ -126,17 +124,16 @@ class Server(object):
 
 			# Get VM Domain Name
 			vm = getVmName(client_message["vm"]["mac"]) 
+			vmLoad = client_message["vm"]["load"]
 			logging.info("Deduced VmName = {} from VmMac = {}".format(vm, client_message["vm"]["mac"]))
 
 			# Process Client Message
 			if vm != "":
 				if client_message["request"]["login"]:
 					# Register VM
-					vmLoad = client_message["vm"]["load"]
-					if vmLoad in SERVER_PLOT_DATA["vmLoads"]:
+					if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
 						logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
 						self.my_mutex.acquire()
-						#self.vms[vm] = vmLoad
 						self.vms[vm] = {
 							"vm" : vm,
 							"load" : vmLoad,
@@ -155,6 +152,16 @@ class Server(object):
 					self.server_message["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
 					sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
 					logging.info("Sent {} back to {}".format(self.server_message, address))
+				
+					# Update VM Load
+					self.my_mutex.acquire()
+					if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
+						logging.info("Updated VM: {} Load: {}".format(vm, vmLoad))
+						self.vms[vm] = vmLoad
+					else:
+						logging.error("VM Load not in SERVER_PLOT_DATA")
+					self.my_mutex.release()
+				
 				elif client_message["request"]["migration"]:
 					# MigrateVm
 					target = client_message["vm"]["target"]
@@ -184,7 +191,7 @@ if __name__ == "__main__":
 	
 	# Get calibration temperature 
 	initialTemp = calibrate.Calibrate(600).getCalibrationTemp() 
-	maxTemp = 317 # for 30 vma @100% load
+	maxTemp = 317 # for 30 VMs @100% load
 	logging.info("Initial Average Host Temperature = {} and maxTemp = {}".format(initialTemp, maxTemp))
 
 	# Start Server 

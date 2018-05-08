@@ -14,7 +14,7 @@ class PeriodicTask(object):
 		self.kwargs = kwargs
 	
 		# Initialize random load from list	
-		loadList = [100, 50]
+		loadList = [75, 100] #[50, 100][25, 100]
 		#shuffle(loadList)
 		self.load = deque(loadList)
 	
@@ -35,5 +35,6 @@ def job(timeout, load):
 	Main
 '''
 if __name__ == "__main__":
-	task = PeriodicTask(interval=3000, callback=job)
+	# Load changes every 40 minutes
+	task = PeriodicTask(interval=2400, callback=job)
 	task.run()

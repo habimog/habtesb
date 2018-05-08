@@ -8,6 +8,23 @@ SERVERS = {
 	"trident3.vlab.cs.hioa.no" : "128.39.120.91"
 }
 
+SERVER_MESSAGE = {
+	"maxTemp"  : 0.0,
+	"hostTemp" : 0.0
+}
+
+SERVER_PLOT_DATA = {
+	"hostTemp" : 0.0,
+	"numVms" : 0,
+	"vmLoads" : { 
+		"25"  : 0,
+		"50"  : 0,
+		"75"  : 0,
+		"100" : 0
+	},
+	"vms" : []
+}
+
 CLIENT_MESSAGE = {
 	"request" : {
 		"login" : False,
@@ -24,23 +41,6 @@ CLIENT_MESSAGE = {
 		"trident2.vlab.cs.hioa.no" : 0.0,
 		"trident3.vlab.cs.hioa.no" : 0.0
 	}
-}
-
-SERVER_MESSAGE = {
-	"maxTemp"  : 0.0,
-	"hostTemp" : 0.0
-}
-
-SERVER_PLOT_DATA = {
-	"hostTemp" : 0.0,
-	"numVms" : 0,
-	"vmLoads" : { 
-		"25"  : 0,
-		"50"  : 0,
-		"75"  : 0,
-		"100" : 0
-	},
-	"vms" : []
 }
 
 # Get server temperature
@@ -80,8 +80,8 @@ def getHostNameFromIp(ip):
 
 # Migrate VM
 def migrateVm(vm, target):
-	cmd = "virsh migrate --live %s qemu+ssh://%s/system --undefinesource --persistent" % (vm, target)
 	try:
+		cmd = "virsh migrate --live %s qemu+ssh://%s/system --undefinesource --persistent" % (vm, target)
 		subprocess.check_call(cmd, shell=True)
 	except subprocess.CalledProcessError as e:
 		print("ERROR: : {reason}".format(reason=e))
