@@ -18,7 +18,7 @@ formatter = DatetimeTickFormatter(
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figTemp = figure(x_axis_type="datetime", plot_width=1200, plot_height=500,
-			x_axis_label = "@timestamp per minute", y_axis_label = "NUMA Node Relative Temperature",
+			x_axis_label = "@timestamp per minute", y_axis_label = "Relative Temperature",
 			y_range=(-5, 50), title="Temperature", tools=TOOLS)
 
 figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
@@ -33,9 +33,12 @@ figTemp.line(source=sourceTemp, x="x", y="trident3", legend=value("trident3"), a
 figTemp.xaxis.formatter = formatter
 figTemp.legend.orientation = "horizontal"
 figTemp.legend.location = "top_left"
-#figTemp.title.text_font_size = '20pt'
-#figTemp.xaxis.axis_label_text_font_size = "15pt"
-#figTemp.yaxis.axis_label_text_font_size = "15pt"
+figTemp.legend.label_text_font_size = '15pt'
+figTemp.title.text_font_size = '15pt'
+figTemp.xaxis.major_label_text_font_size = "15pt"
+figTemp.yaxis.major_label_text_font_size = "15pt"
+figTemp.xaxis.axis_label_text_font_size = "15pt"
+figTemp.yaxis.axis_label_text_font_size = "15pt"
 
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
@@ -55,9 +58,12 @@ figVms.line(source=sourceVms, x="x", y="trident3", legend=value("trident3"), alp
 figVms.xaxis.formatter = formatter
 figVms.legend.orientation = "horizontal"
 figVms.legend.location = "top_left"
-#figVms.title.text_font_size = '20pt'
-#figVms.xaxis.axis_label_text_font_size = "15pt"
-#figVms.yaxis.axis_label_text_font_size = "15pt"
+figVms.legend.label_text_font_size = '15pt'
+figVms.title.text_font_size = '15pt'
+figVms.xaxis.major_label_text_font_size = "15pt"
+figVms.yaxis.major_label_text_font_size = "15pt"
+figVms.xaxis.axis_label_text_font_size = "15pt"
+figVms.yaxis.axis_label_text_font_size = "15pt"
 
 # Plot VM Loads
 # https://bokeh.pydata.org/en/latest/docs/user_guide/categorical.html
@@ -76,19 +82,19 @@ figLoads = figure(x_range=loads, y_range=(0, 40),
 			title="VM Load Count", tools=TOOLS)
 
 tr1labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident1', text='trident1', level='glyph',
-        x_offset=10, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=20, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr1labels)
 figLoads.vbar(x=dodge('loads', -0.25, range=figLoads.x_range), top='trident1', 
 			width=0.2, source=sourceLoads, color="peru", legend=value("trident1"))
 
 tr2labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident2', text='trident2', level='glyph',
-        x_offset=53, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=60, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr2labels)
 figLoads.vbar(x=dodge('loads',  0.0,  range=figLoads.x_range), top='trident2', 
 			width=0.2, source=sourceLoads, color="blue", legend=value("trident2"))
 
 tr3labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident3', text='trident3', level='glyph',
-        x_offset=94, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=100, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr3labels)
 figLoads.vbar(x=dodge('loads',  0.25, range=figLoads.x_range), top='trident3', 
 			width=0.2, source=sourceLoads, color="red", legend=value("trident3"))
@@ -97,9 +103,12 @@ figLoads.x_range.range_padding = 0.1
 figLoads.xgrid.grid_line_color = None
 figLoads.legend.location = "top_left"
 figLoads.legend.orientation = "horizontal"	
-#figLoads.title.text_font_size = '20pt'
-#figLoads.xaxis.axis_label_text_font_size = "15pt"
-#figLoads.yaxis.axis_label_text_font_size = "15pt"
+figLoads.legend.label_text_font_size = '15pt'
+figLoads.title.text_font_size = '15pt'
+figLoads.xaxis.major_label_text_font_size = "15pt"
+figLoads.yaxis.major_label_text_font_size = "15pt"
+figLoads.xaxis.axis_label_text_font_size = "15pt"
+figLoads.yaxis.axis_label_text_font_size = "15pt"
 
 #
 csv = open('temperature.csv', 'w')
