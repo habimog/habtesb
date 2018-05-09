@@ -45,6 +45,6 @@ def getPlotData():
 			print("received: {} from {}".format(server_message[host], address))
 		except:
 			print("Socket timeout for {}".format((ip, SETER_PLOT_PORT)))
-			#return {}
+			return {}
 
 	return server_message

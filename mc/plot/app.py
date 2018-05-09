@@ -6,6 +6,7 @@ from bokeh.models import ColumnDataSource, ranges, LabelSet
 from bokeh.models import DatetimeTickFormatter
 
 from datetime import datetime
+from copy import deepcopy
 from utils import *
 
 formatter = DatetimeTickFormatter(
@@ -44,7 +45,7 @@ figTemp.yaxis.axis_label_text_font_size = "15pt"
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figVms = figure(x_axis_type="datetime", plot_width=1200, plot_height=400,
 			x_axis_label = "@timestamp per minute", y_axis_label = "VM numbers", 
-			y_range=(-5, 40), title="Number Of VMs", tools=TOOLS)
+			y_range=(-5, 30), title="Number Of VMs", tools=TOOLS)
 
 figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
 figVms.line(source=sourceVms, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
@@ -82,7 +83,7 @@ figLoads = figure(x_range=loads, y_range=(0, 40),
 			title="VM Load Count", tools=TOOLS)
 
 tr1labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident1', text='trident1', level='glyph',
-        x_offset=20, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=0, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr1labels)
 figLoads.vbar(x=dodge('loads', -0.25, range=figLoads.x_range), top='trident1', 
 			width=0.2, source=sourceLoads, color="peru", legend=value("trident1"))
@@ -94,7 +95,7 @@ figLoads.vbar(x=dodge('loads',  0.0,  range=figLoads.x_range), top='trident2',
 			width=0.2, source=sourceLoads, color="blue", legend=value("trident2"))
 
 tr3labels = LabelSet(x=dodge('loads', -0.25, range=figLoads.x_range), y='trident3', text='trident3', level='glyph',
-        x_offset=100, y_offset=0, source=sourceLoads, render_mode='canvas')
+        x_offset=120, y_offset=0, source=sourceLoads, render_mode='canvas')
 figLoads.add_layout(tr3labels)
 figLoads.vbar(x=dodge('loads',  0.25, range=figLoads.x_range), top='trident3', 
 			width=0.2, source=sourceLoads, color="red", legend=value("trident3"))
@@ -110,7 +111,7 @@ figLoads.yaxis.major_label_text_font_size = "15pt"
 figLoads.xaxis.axis_label_text_font_size = "15pt"
 figLoads.yaxis.axis_label_text_font_size = "15pt"
 
-#
+# Open a file to write temperature datas
 csv = open('temperature.csv', 'w')
 columnTitleRow = "time, trident1, trident2, trident3\n"
 csv.write(columnTitleRow)		
@@ -134,6 +135,10 @@ def update():
 		temp_data = dict(x=[x], trident1=[trident1Temp], trident2=[trident2Temp], trident3=[trident3Temp])
 		sourceTemp.stream(temp_data, rollover=400)
 
+		# Write temperature datas
+		row = x.strftime("%H:%M:%S") + "," + str(trident1Temp) + "," + str(trident2Temp) + "," + str(trident3Temp) + "\n"
+		csv.write(row)
+
 		# Update VMs Number
 		trident1numVms = data["trident1.vlab.cs.hioa.no"]["numVms"] if "trident1.vlab.cs.hioa.no" in data else 0	
 		trident2numVms = data["trident2.vlab.cs.hioa.no"]["numVms"] if "trident2.vlab.cs.hioa.no" in data else 0
@@ -143,9 +148,9 @@ def update():
 		sourceVms.stream(vms_data, rollover=400)
 
 		# Update VM loads
-		trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]	
-		trident2VMloads = data["trident2.vlab.cs.hioa.no"]["vmLoads"] if "trident2.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]
-		trident3VMloads = data["trident3.vlab.cs.hioa.no"]["vmLoads"] if "trident3.vlab.cs.hioa.no" in data else SERVER_PLOT_DATA["vmLoads"]
+		trident1VMloads = data["trident1.vlab.cs.hioa.no"]["vmLoads"] if "trident1.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vmLoads"])	
+		trident2VMloads = data["trident2.vlab.cs.hioa.no"]["vmLoads"] if "trident2.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vmLoads"])
+		trident3VMloads = data["trident3.vlab.cs.hioa.no"]["vmLoads"] if "trident3.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vmLoads"])
 
 		load_data = {
 			'loads'    : loads,
@@ -154,10 +159,6 @@ def update():
 			'trident3' : [trident3VMloads["25"], trident3VMloads["50"], trident3VMloads["75"], trident3VMloads["100"]]
 		}
 		sourceLoads.stream(load_data, rollover=len(loads))
-
-		#
-		row = x.strftime("%H:%M:%S") + "," + str(trident1Temp) + "," + str(trident2Temp) + "," + str(trident3Temp) + "\n"
-		csv.write(row)
 
 # Add a periodic callback to be run every 60 second
 curdoc().add_root(figTemp)
