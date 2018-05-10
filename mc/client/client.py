@@ -101,6 +101,10 @@ class Client(object):
 			acked = False
 			while not acked:
 				try:
+					hostName = getHostName()
+					ip = getHostIp(hostName)
+					mac = getVmMac()
+					load = getLoad()
 					# Send Request
 					self.client_message["request"]["login"] = True
 					self.client_message["request"]["temperature"] = False
