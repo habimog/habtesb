@@ -45,7 +45,7 @@ figTemp.yaxis.axis_label_text_font_size = "15pt"
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figVms = figure(x_axis_type="datetime", plot_width=1200, plot_height=400,
 			x_axis_label = "@timestamp per minute", y_axis_label = "VM numbers", 
-			y_range=(-5, 30), title="Number Of VMs", tools=TOOLS)
+			y_range=(-5, 32), title="Number Of VMs", tools=TOOLS)
 
 figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
 figVms.line(source=sourceVms, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
@@ -76,7 +76,7 @@ data = {
     'trident3' : [0, 0, 0, 0]
 }
 sourceLoads = ColumnDataSource(data=data)
-figLoads = figure(x_range=loads, y_range=(0, 40), 
+figLoads = figure(x_range=loads, y_range=(0, 36), 
 			plot_width=1200, plot_height=400, 
 			x_axis_label = "CPU Load (%)", 
 			y_axis_label = "Number of Loads", 
