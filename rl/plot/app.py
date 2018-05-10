@@ -76,7 +76,7 @@ data = {
     'trident3' : [0, 0, 0, 0]
 }
 sourceLoads = ColumnDataSource(data=data)
-figLoads = figure(x_range=loads, y_range=(0, 20), 
+figLoads = figure(x_range=loads, y_range=(0, 30), 
 			plot_width=1200, plot_height=400, 
 			x_axis_label = "CPU Load (%)", 
 			y_axis_label = "Number of Loads",
