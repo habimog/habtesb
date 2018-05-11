@@ -22,10 +22,10 @@ class Client(object):
 	def run(self):
 		# Send Client status
 		hostName, ip, mac, load = self._sendStatus()
-		time.sleep(1800)
+		time.sleep(1200)
 		while True:
 			# Wake VM randomly
-			rand_time = random.randint(180, 300)
+			rand_time = random.randint(120, 180)
 			print("Rand Time = {}".format(rand_time))
 			time.sleep(rand_time)
 
@@ -131,10 +131,10 @@ class Client(object):
 					acked = False
 					time.sleep(random.randint(5, 30))
 
-			# Pause for 30min if Load changed
+			# Pause for 20 minutes if Load changed
 			if loadChanged:
-				print("Load Changed, Pause for 30 minutes.")
-				time.sleep(1800)
+				print("Load Changed, Pause for 20 minutes.")
+				time.sleep(1200)
 
 		return hostName, ip, mac, load				
 
