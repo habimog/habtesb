@@ -35,6 +35,6 @@ def job(timeout, load):
 	Main
 '''
 if __name__ == "__main__":
-	# Load changes every 60 minutes
-	task = PeriodicTask(interval=3600, callback=job)
+	# Load changes every 80 minutes
+	task = PeriodicTask(interval=4800, callback=job)
 	task.run()
