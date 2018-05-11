@@ -123,7 +123,7 @@ class Server(object):
 	def _handleServer(self):
 		while True:
 			logging.debug("---------------------- handleServer ---------------")
-			time.sleep(15)
+			time.sleep(2)
 
 			host = getHostName()
 			servers = list(SERVERS.keys())
