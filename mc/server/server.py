@@ -153,7 +153,7 @@ class Server(object):
 					self.server_message[host] = server_message[host]
 					self.my_mutex.release()
 				except:
-					logging.error("Server socket timeout")
+					logging.error("Server socket timeout for: {}".format(server))
 
 	def _handleClient(self):
 		while True:
