@@ -22,10 +22,10 @@ class Client(object):
 	def run(self):
 		# Send Client status
 		hostName, ip, mac, load = self._sendStatus()
-		time.sleep(600)
+		time.sleep(1800)
 		while True:
 			# Wake VM randomly
-			rand_time = random.randint(100, 180)
+			rand_time = random.randint(180, 3000)
 			print("Rand Time = {}".format(rand_time))
 			time.sleep(rand_time)
 
@@ -77,8 +77,8 @@ class Client(object):
 						self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
 						print("sent: {} to {}".format(self.client_message, destination))
 			
-						# Sleep for 30 sec, for migration to complete
-						time.sleep(30)
+						# Sleep for 60 sec, for migration to complete
+						time.sleep(60)
 				except:
 					print("An unexpected error occurred")
 			except:
@@ -101,10 +101,12 @@ class Client(object):
 			acked = False
 			while not acked:
 				try:
+					# Update client data
 					hostName = getHostName()
 					ip = getHostIp(hostName)
 					mac = getVmMac()
 					load = getLoad()
+					
 					# Send Request
 					self.client_message["request"]["login"] = True
 					self.client_message["request"]["temperature"] = False
@@ -129,10 +131,10 @@ class Client(object):
 					acked = False
 					time.sleep(random.randint(5, 30))
 
-			# Pause for 10min if Load changed
+			# Pause for 30min if Load changed
 			if loadChanged:
-				print("Load Changed, Pause for 10 minutes.")
-				time.sleep(600)
+				print("Load Changed, Pause for 30 minutes.")
+				time.sleep(1800)
 
 		return hostName, ip, mac, load				
 
