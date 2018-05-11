@@ -25,7 +25,7 @@ class Client(object):
 		time.sleep(1800)
 		while True:
 			# Wake VM randomly
-			rand_time = random.randint(180, 3000)
+			rand_time = random.randint(180, 300)
 			print("Rand Time = {}".format(rand_time))
 			time.sleep(rand_time)
 
