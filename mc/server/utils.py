@@ -49,7 +49,7 @@ class DeltaTemp():
 		time_passed = datetime.now() - self._started_at
 		if time_passed.total_seconds() > 120:
 			self._started_at = datetime.now()
-			if self.deltaTemp > 16.0:
+			if self.deltaTemp > 24.0:
 				 self.deltaTemp -= 1.0
 		return self.deltaTemp
 deltaTemp = DeltaTemp()
