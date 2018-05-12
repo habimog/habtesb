@@ -21,10 +21,10 @@ logging.basicConfig(filename="/var/tmp/server.log",
 ''' Server
 '''
 class Server(object):
-	def __init__(self, initialTemp, deltaTemp):
+	def __init__(self, initialTemp):
 		# Calibration temperature
 		self.calibrationTemp = initialTemp
-		self.deltaTemp = deltaTemp
+		self.deltaTemp = deltaTemp()
 
 		# Register Signal Handler
 		signal.signal(signal.SIGINT, self._signal_handler)
@@ -96,6 +96,11 @@ class Server(object):
 				logging.info("VM: {} Loggedout".format(vm))
 				del self.vms[vm]
 			logging.debug("Logged in clients = {}".format(self.vms))
+			
+			# Update deltaTemp
+			self.deltaTemp = deltaTemp()
+			logging.debug("Updated deltaTemp = {}".format(self.deltaTemp))
+			
 			self.my_mutex.release()
 			time.sleep(15)
 
@@ -177,10 +182,10 @@ class Server(object):
 						logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
 						self.my_mutex.acquire()
 						self.vms[vm] = vmLoad
+						client_message["vm"]["deltaTemp"] = self.deltaTemp
 						self.my_mutex.release()
 
 						# Send Response
-						client_message["vm"]["deltaTemp"] = self.deltaTemp
 						sent = self.client_socket.sendto(json.dumps(client_message).encode('utf-8'), address)
 						logging.info("Sent {} back to {}".format(client_message, address))
 					else:
@@ -229,10 +234,9 @@ if __name__ == "__main__":
 	
 	# Get calibration temperature
 	initialTemp = calibrate.Calibrate(600).getCalibrationTemp() 
-	deltaTemp = 24.0
 	logging.info("Initial Average Host Temperature = {}".format(initialTemp))
 	print("Initial Average Host Temperature = {}".format(initialTemp))
 
 	# Start the Server
-	Server(initialTemp, deltaTemp).run()
+	Server(initialTemp).run()
 
