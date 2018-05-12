@@ -108,11 +108,11 @@ class Server(object):
 			# Server plot data
 			logging.info("Received server plot data request")
 			plotData = deepcopy(SERVER_PLOT_DATA)
-			hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
-			plotData["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
-			plotData["numVms"] = getNumberOfVms()
 
 			self.my_mutex.acquire()
+			host = getHostName()
+			plotData["hostTemp"] = self.server_message[host] / getNumberOfNodes()
+			plotData["numVms"] = getNumberOfVms()
 			for vm, load in self.vms.items():
 				plotData["vmLoads"][str(load)] += 1
 			self.my_mutex.release()
