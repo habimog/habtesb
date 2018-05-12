@@ -20,7 +20,7 @@ formatter = DatetimeTickFormatter(
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figTemp = figure(x_axis_type="datetime", plot_width=1200, plot_height=500,
 			x_axis_label = "@timestamp per minute", y_axis_label = "Temperature Relative to Calibration Temp.",
-			y_range=(-5, 50), title="Temperature", tools=TOOLS)
+			y_range=(-5, 60), title="Temperature", tools=TOOLS)
 
 figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
 figTemp.line(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
