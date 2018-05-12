@@ -43,7 +43,7 @@ CLIENT_MESSAGE = {
 class DeltaTemp():
 	def __init__(self):
 		self._started_at = datetime.now()
-		self.deltaTemp = 48.0 + 16.0
+		self.deltaTemp = 56.0
 
 	def __call__(self):
 		time_passed = datetime.now() - self._started_at
