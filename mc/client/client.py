@@ -55,7 +55,7 @@ class Client(object):
 				try:
 					hostTemp = server_message[hostName]
 					avgTemp = sum(server_message.values()) / len(server_message)
-					migrate = True if hostTemp > (avgTemp + self.delta) else False
+					migrate = True if((hostTemp > avgTemp) and ((hostTemp - min(server_message.values())) >= self.delta)) else False
 					print("migrate? {}, AvgTemp = {}, HostTemp = {}".format(migrate, avgTemp, hostTemp))
 
 					# Update Login request
