@@ -156,7 +156,9 @@ class Server(object):
 					self.my_mutex.acquire()
 					if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
 						logging.info("Updated VM: {} Load: {}".format(vm, vmLoad))
+						self.vms[vm]["vm"] = vm
 						self.vms[vm]["load"] = vmLoad
+						self.vms[vm]["prob"] = client_message["prob"]
 					else:
 						logging.error("VM Load not in SERVER_PLOT_DATA")
 					self.my_mutex.release()
