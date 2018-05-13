@@ -125,7 +125,6 @@ class Server(object):
 			# Get VM Domain Name
 			vm = getVmName(client_message["vm"]["mac"]) 
 			vmLoad = client_message["vm"]["load"]
-			logging.info("Deduced VmName = {} from VmMac = {}".format(vm, client_message["vm"]["mac"]))
 
 			# Process Client Message
 			if vm != "":
@@ -157,7 +156,7 @@ class Server(object):
 					self.my_mutex.acquire()
 					if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
 						logging.info("Updated VM: {} Load: {}".format(vm, vmLoad))
-						self.vms[vm] = vmLoad
+						self.vms[vm]["load"] = vmLoad
 					else:
 						logging.error("VM Load not in SERVER_PLOT_DATA")
 					self.my_mutex.release()
@@ -174,7 +173,7 @@ class Server(object):
 					# Delete VM Load
 					self.my_mutex.acquire()
 					if vm in self.vms:
-						logging.info("Deleted VM: {}".format(vm))
+						logging.info("Deleted VM: {} Load: {}".format(vm, self.vms[vm]["load"]))
 						del self.vms[vm]
 					self.my_mutex.release()
 				
