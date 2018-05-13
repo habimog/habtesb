@@ -191,9 +191,9 @@ def update():
 		sourceLoads.stream(load_data, rollover=len(loads))
 
 		# Update VM Probabilities
-		trident1VMs = data["trident1.vlab.cs.hioa.no"]["vms"] if "trident1.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vms"])	
-		trident2VMs = data["trident2.vlab.cs.hioa.no"]["vms"] if "trident2.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vms"])	
-		trident3VMs = data["trident3.vlab.cs.hioa.no"]["vms"] if "trident3.vlab.cs.hioa.no" in data else deepcopy(SERVER_PLOT_DATA["vms"])	
+		trident1VMs = data["trident1.vlab.cs.hioa.no"]["vms"] if "trident1.vlab.cs.hioa.no" in data else []
+		trident2VMs = data["trident2.vlab.cs.hioa.no"]["vms"] if "trident2.vlab.cs.hioa.no" in data else []	
+		trident3VMs = data["trident3.vlab.cs.hioa.no"]["vms"] if "trident3.vlab.cs.hioa.no" in data else []	
 
 		for vms in [trident1VMs, trident2VMs, trident3VMs]:
 			if vms:
@@ -207,10 +207,9 @@ def update():
 							str(vm['prob']['trident3.vlab.cs.hioa.no']) + "\n"
 						csv_prob.write(row)
 
-						prob_data = dict(x=[x], 
-										trident1=[vm['prob']['trident1.vlab.cs.hioa.no']],
-										trident2=[vm['prob']['trident2.vlab.cs.hioa.no']],
-										trident3=[vm['prob']['trident3.vlab.cs.hioa.no']])
+						prob_data = dict(x=[x], trident1=[vm['prob']['trident1.vlab.cs.hioa.no']],
+								 trident2=[vm['prob']['trident2.vlab.cs.hioa.no']],
+								 trident3=[vm['prob']['trident3.vlab.cs.hioa.no']])
 						probTemp.stream(prob_data, rollover=400)	
 						found = True
 						break
