@@ -19,8 +19,8 @@ formatter = DatetimeTickFormatter(
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figTemp = figure(x_axis_type="datetime", plot_width=1200, plot_height=500,
-			x_axis_label = "@timestamp per minute", y_axis_label = "Relative Temperature",
-			y_range=(-5, 50), title="Temperature", tools=TOOLS)
+			x_axis_label = "@timestamp per 5 minutes", y_axis_label = "Temperature Relative to Calibration Temp.",
+			y_range=(-5, 60), title="Temperature", tools=TOOLS)
 
 figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
 figTemp.line(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
@@ -44,8 +44,8 @@ figTemp.yaxis.axis_label_text_font_size = "15pt"
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figVms = figure(x_axis_type="datetime", plot_width=1200, plot_height=400,
-			x_axis_label = "@timestamp per minute", y_axis_label = "VM numbers",
-			y_range=(-5, 30), title="Number Of VMs", tools=TOOLS)
+			x_axis_label = "@timestamp per 5 minutes", y_axis_label = "VM numbers",
+			y_range=(-5, 35), title="Number Of VMs", tools=TOOLS)
 
 figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
 figVms.line(source=sourceVms, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
@@ -76,7 +76,7 @@ data = {
     'trident3' : [0, 0, 0, 0]
 }
 sourceLoads = ColumnDataSource(data=data)
-figLoads = figure(x_range=loads, y_range=(0, 30), 
+figLoads = figure(x_range=loads, y_range=(0, 35), 
 			plot_width=1200, plot_height=400, 
 			x_axis_label = "CPU Load (%)", 
 			y_axis_label = "Number of Loads",
@@ -124,7 +124,7 @@ csv_prob.write(columnTitleRow)
 # Plot VMs Probabilities
 probTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figProbs = figure(x_axis_type="datetime", plot_width=1200, plot_height=500,
-			x_axis_label = "@timestamp per 30 seconds", y_axis_label = "Probability",
+			x_axis_label = "@timestamp per 5 minutes", y_axis_label = "Probability",
 			y_range=(0, 1), title="VM Probability", tools=TOOLS)
 
 figProbs.circle_cross(source=probTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
@@ -208,16 +208,16 @@ def update():
 						csv_prob.write(row)
 
 						prob_data = dict(x=[x], trident1=[vm['prob']['trident1.vlab.cs.hioa.no']],
-								 trident2=[vm['prob']['trident2.vlab.cs.hioa.no']],
-								 trident3=[vm['prob']['trident3.vlab.cs.hioa.no']])
+								trident2=[vm['prob']['trident2.vlab.cs.hioa.no']],
+								trident3=[vm['prob']['trident3.vlab.cs.hioa.no']])
 						probTemp.stream(prob_data, rollover=400)	
 						found = True
 						break
 				if found: break
 
-# Add a periodic callback to be run every 60 second
+# Add a periodic callback to be run every 5 mins
 curdoc().add_root(figTemp)
 curdoc().add_root(figVms)
 curdoc().add_root(figLoads)
 curdoc().add_root(figProbs)
-curdoc().add_periodic_callback(update, 60000)
+curdoc().add_periodic_callback(update, 300000)
