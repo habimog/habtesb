@@ -196,24 +196,20 @@ def update():
 		trident3VMs = data["trident3.vlab.cs.hioa.no"]["vms"] if "trident3.vlab.cs.hioa.no" in data else []	
 
 		for vms in [trident1VMs, trident2VMs, trident3VMs]:
-			if vms:
-				found = False
-				for vm in vms:
-					if vm['vm'] == 'vm1':
-						# Write probabilities datas
-						row = x.strftime("%H:%M:%S") + "," + \
-							str(vm['prob']['trident1.vlab.cs.hioa.no']) + "," + \
-							str(vm['prob']['trident2.vlab.cs.hioa.no']) + "," + \
-							str(vm['prob']['trident3.vlab.cs.hioa.no']) + "\n"
-						csv_prob.write(row)
+			if vms and vms[-1] == "vm1":
+				vm = vms[-1]
+				# Write probabilities datas
+				row = x.strftime("%H:%M:%S") + "," + \
+					str(vm['prob']['trident1.vlab.cs.hioa.no']) + "," + \
+					str(vm['prob']['trident2.vlab.cs.hioa.no']) + "," + \
+					str(vm['prob']['trident3.vlab.cs.hioa.no']) + "\n"
+				csv_prob.write(row)
 
-						prob_data = dict(x=[x], trident1=[vm['prob']['trident1.vlab.cs.hioa.no']],
-								trident2=[vm['prob']['trident2.vlab.cs.hioa.no']],
-								trident3=[vm['prob']['trident3.vlab.cs.hioa.no']])
-						probTemp.stream(prob_data, rollover=400)	
-						found = True
-						break
-				if found: break
+				prob_data = dict(x=[x], trident1=[vm['prob']['trident1.vlab.cs.hioa.no']],
+						trident2=[vm['prob']['trident2.vlab.cs.hioa.no']],
+						trident3=[vm['prob']['trident3.vlab.cs.hioa.no']])
+				probTemp.stream(prob_data, rollover=400)	
+
 
 # Add a periodic callback to be run every 5 mins
 curdoc().add_root(figTemp)
