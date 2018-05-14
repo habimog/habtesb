@@ -38,8 +38,8 @@ def getPlotData():
 
 			# Receive response
 			print("waiting to receive")
-			sock.settimeout(5.0)
-			data, address = sock.recvfrom(512)
+			sock.settimeout(15.0)
+			data, address = sock.recvfrom(1024)
 			sock.settimeout(None)
 			server_message[host] = json.loads(data.decode('utf-8'))
 			print("received: {} from {}".format(server_message[host], address))
