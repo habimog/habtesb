@@ -145,7 +145,7 @@ class Server(object):
 						logging.info("Sent {} back to {}".format(client_message, address))
 					else:
 						logging.error("VM Load not in SERVER_PLOT_DATA")
-				if client_message["request"]["temperature"]:
+				elif client_message["request"]["temperature"]:
 					# Send Response
 					hostTemp = getHostTemp() - self.calibrationTemp
 					self.server_message["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
