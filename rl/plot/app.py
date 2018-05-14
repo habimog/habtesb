@@ -196,7 +196,7 @@ def update():
 		trident3VMs = data["trident3.vlab.cs.hioa.no"]["vms"] if "trident3.vlab.cs.hioa.no" in data else []	
 
 		for vms in [trident1VMs, trident2VMs, trident3VMs]:
-			if vms and vms[-1] == "vm1":
+			if vms and vms[-1]["vm"] == "vm1":
 				vm = vms[-1]
 				# Write probabilities datas
 				row = x.strftime("%H:%M:%S") + "," + \
