@@ -80,14 +80,17 @@ class Server(object):
 			logging.debug("---------------------- handleLogin ---------------")
 			
 			# Delete VMs Loggedout
-			vms = getVmsLoggedin()
-			self.my_mutex.acquire()
-			loggedoutVms = [vm for vm in self.vms if vm not in vms]
-			for vm in loggedoutVms:
-				logging.info("VM: {} Loggedout".format(vm))
-				del self.vms[vm]
-			logging.debug("Logged in clients = {}".format(self.vms))
-			self.my_mutex.release()
+			try:
+				vms = getVmsLoggedin()
+				self.my_mutex.acquire()
+				loggedoutVms = [vm for vm in self.vms if vm not in vms]
+				for vm in loggedoutVms:
+					logging.info("VM: {} Loggedout".format(vm))
+					del self.vms[vm]
+				self.my_mutex.release()
+				logging.debug("Logged in clients = {}".format(self.vms))
+			except:
+				logging.error("Exception in HandleLogin thread")
 			time.sleep(15)
 
 	def _handlePlot(self):
@@ -95,22 +98,25 @@ class Server(object):
 			logging.debug("---------------------- handlePlot ---------------")
 			logging.info("waiting to receive server plot data request")
 			data, address = self.plot_socket.recvfrom(1024)
+			logging.info("Received server plot data request")
 
 			# Server plot data
-			logging.info("Received server plot data request")
-			plotData = deepcopy(SERVER_PLOT_DATA)
-			hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
-			plotData["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
-			plotData["numVms"] = getNumberOfVms()
+			try:
+				plotData = deepcopy(SERVER_PLOT_DATA)
+				hostTemp = (getHostTemp() - self.calibrationTemp) / getNumberOfNodes()
+				plotData["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
+				plotData["numVms"] = getNumberOfVms()
 
-			self.my_mutex.acquire()
-			for vm, value in self.vms.items():
-				plotData["vmLoads"][str(value["load"])] += 1
-				if vm == "vm1": plotData["vms"].append(self.vms[vm])
-			self.my_mutex.release()
+				self.my_mutex.acquire()
+				for vm, value in self.vms.items():
+					plotData["vmLoads"][str(value["load"])] += 1
+					if vm == "vm1": plotData["vms"].append(self.vms[vm])
+				self.my_mutex.release()
 
-			sent = self.plot_socket.sendto(json.dumps(plotData).encode('utf-8'), address)
-			logging.info("Sent {} to {}".format(plotData, address))
+				sent = self.plot_socket.sendto(json.dumps(plotData).encode('utf-8'), address)
+				logging.info("Sent {} to {}".format(plotData, address))
+			except:
+				logging.error("Exception in HandlePlot thread")
 
 	def _handleClient(self):
 		while True:
@@ -122,67 +128,68 @@ class Server(object):
 			client_message = json.loads(data.decode('utf-8'))
 			logging.info("Received {} from {}".format(client_message, address))
 
-			# Get VM Domain Name
-			vm = getVmName(client_message["vm"]["mac"]) 
-			vmLoad = client_message["vm"]["load"]
+			try:
+				# Get VM Domain Name
+				vm = getVmName(client_message["vm"]["mac"]) 
+				vmLoad = client_message["vm"]["load"]
 
-			# Process Client Message
-			if vm != "":
-				if client_message["request"]["login"]:
-					# Register VM
-					if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
-						logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
-						self.my_mutex.acquire()
-						self.vms[vm] = {
-							"vm" : vm,
-							"load" : vmLoad,
-							"prob" : client_message["prob"]
-						}
-						self.my_mutex.release()
+				# Process Client Message
+				if vm != "":
+					if client_message["request"]["login"]:
+						# Register VM
+						if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
+							logging.info("Added VM: {} Load: {}".format(vm, vmLoad))
+							self.my_mutex.acquire()
+							self.vms[vm] = {
+								"vm" : vm,
+								"load" : vmLoad,
+								"prob" : client_message["prob"]
+							}
+							self.my_mutex.release()
 
+							# Send Response
+							sent = self.client_socket.sendto(json.dumps(client_message).encode('utf-8'), address)
+							logging.info("Sent {} back to {}".format(client_message, address))
+						else:
+							logging.error("VM Load not in SERVER_PLOT_DATA")
+					elif client_message["request"]["temperature"]:
 						# Send Response
-						sent = self.client_socket.sendto(json.dumps(client_message).encode('utf-8'), address)
-						logging.info("Sent {} back to {}".format(client_message, address))
+						hostTemp = getHostTemp() - self.calibrationTemp
+						self.server_message["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
+						sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
+						logging.info("Sent {} back to {}".format(self.server_message, address))
+					
+						# Update VM Load
+						self.my_mutex.acquire()
+						if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
+							logging.info("Updated VM: {} Load: {}".format(vm, vmLoad))
+							self.vms[vm]["vm"] = vm
+							self.vms[vm]["load"] = vmLoad
+							self.vms[vm]["prob"] = client_message["prob"]
+						else:
+							logging.error("VM Load not in SERVER_PLOT_DATA")
+						self.my_mutex.release()
+					elif client_message["request"]["migration"]:
+						# MigrateVm
+						target = client_message["vm"]["target"]
+						migrationThread = threading.Thread(target=migrateVm, args=[vm, target])
+						migrationThread.setDaemon(True)
+						migrationThread.start()
+						migrationThread.join()
+						logging.debug("migrated {} to {}".format(vm, target))
+					
+						# Delete VM Load
+						self.my_mutex.acquire()
+						if vm in self.vms:
+							logging.info("Deleted VM: {} Load: {}".format(vm, self.vms[vm]["load"]))
+							del self.vms[vm]
+						self.my_mutex.release()
 					else:
-						logging.error("VM Load not in SERVER_PLOT_DATA")
-				elif client_message["request"]["temperature"]:
-					# Send Response
-					hostTemp = getHostTemp() - self.calibrationTemp
-					self.server_message["hostTemp"] = hostTemp if hostTemp >= 0.0 else 0.0
-					sent = self.client_socket.sendto(json.dumps(self.server_message).encode('utf-8'), address)
-					logging.info("Sent {} back to {}".format(self.server_message, address))
-				
-					# Update VM Load
-					self.my_mutex.acquire()
-					if str(vmLoad) in SERVER_PLOT_DATA["vmLoads"]:
-						logging.info("Updated VM: {} Load: {}".format(vm, vmLoad))
-						self.vms[vm]["vm"] = vm
-						self.vms[vm]["load"] = vmLoad
-						self.vms[vm]["prob"] = client_message["prob"]
-					else:
-						logging.error("VM Load not in SERVER_PLOT_DATA")
-					self.my_mutex.release()
-				
-				elif client_message["request"]["migration"]:
-					# MigrateVm
-					target = client_message["vm"]["target"]
-					migrationThread = threading.Thread(target=migrateVm, args=[vm, target])
-					migrationThread.setDaemon(True)
-					migrationThread.start()
-					migrationThread.join()
-					logging.debug("migrated {} to {}".format(vm, target))
-				
-					# Delete VM Load
-					self.my_mutex.acquire()
-					if vm in self.vms:
-						logging.info("Deleted VM: {} Load: {}".format(vm, self.vms[vm]["load"]))
-						del self.vms[vm]
-					self.my_mutex.release()
-				
+						logging.error("Wrong VM Request Message")
 				else:
-					logging.error("Wrong VM Request Message")
-			else:
-				logging.error("VM Domain-Name did not deduced correctly")
+					logging.error("VM Domain-Name did not deduced correctly")
+			except:
+				logging.error("Exception in HandleClient thread")
 
 ''' Main
 '''

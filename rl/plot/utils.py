@@ -27,8 +27,8 @@ SETER_PLOT_PORT = 10002
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save,box_select"
 
 # Get Plot Data
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 def getPlotData():
-	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	server_message = {}
 	for host, ip in SERVERS.items():
 		server_message[host] = deepcopy(SERVER_PLOT_DATA)
