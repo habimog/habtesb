@@ -19,7 +19,7 @@ formatter = DatetimeTickFormatter(
 # Plot Temperature
 sourceTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figTemp = figure(x_axis_type="datetime", plot_width=1200, plot_height=500,
-			x_axis_label = "@timestamp per 5 minutes", y_axis_label = "Temperature Relative to Calibration Temp.",
+			x_axis_label = "@timestamp per 2 minutes", y_axis_label = "Temperature Relative to Calibration Temp.",
 			y_range=(-5, 60), title="Temperature", tools=TOOLS)
 
 figTemp.circle_cross(source=sourceTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
@@ -44,7 +44,7 @@ figTemp.yaxis.axis_label_text_font_size = "15pt"
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figVms = figure(x_axis_type="datetime", plot_width=1200, plot_height=400,
-			x_axis_label = "@timestamp per 5 minutes", y_axis_label = "VM numbers",
+			x_axis_label = "@timestamp per 2 minutes", y_axis_label = "VM numbers",
 			y_range=(-5, 35), title="Number Of VMs", tools=TOOLS)
 
 figVms.circle_cross(source=sourceVms, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
@@ -124,7 +124,7 @@ csv_prob.write(columnTitleRow)
 # Plot VMs Probabilities
 probTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figProbs = figure(x_axis_type="datetime", plot_width=1200, plot_height=500,
-			x_axis_label = "@timestamp per 5 minutes", y_axis_label = "Probability",
+			x_axis_label = "@timestamp per 2 minutes", y_axis_label = "Probability",
 			y_range=(0, 1), title="VM Probability", tools=TOOLS)
 
 figProbs.circle_cross(source=probTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
@@ -211,9 +211,9 @@ def update():
 				probTemp.stream(prob_data, rollover=400)	
 
 
-# Add a periodic callback to be run every 5 mins
+# Add a periodic callback to be run every 2 mins
 curdoc().add_root(figTemp)
 curdoc().add_root(figVms)
 curdoc().add_root(figLoads)
 curdoc().add_root(figProbs)
-curdoc().add_periodic_callback(update, 300000)
+curdoc().add_periodic_callback(update, 120000)
