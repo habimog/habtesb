@@ -26,10 +26,10 @@ class Client(object):
 		time.sleep(600)
 
 		while True:
-			# VM wakes randomly
-			rand_time = random.randint(60, 180)
-			print("VM wakes after = {} sec".format(rand_time))
-			time.sleep(rand_time)
+			# VM wakes after 300 seconds
+			wakeup_time = 300
+			print("VM wakes after = {} sec".format(wakeup_time))
+			time.sleep(wakeup_time)
 
 			# Choose action
 			action = self.rlAgent.takeAction()
@@ -54,7 +54,7 @@ class Client(object):
 				print("sent: {} to {}".format(self.client_message, action))
 				
 				# Sleep for 30 sec, for migration to complete
-				time.sleep(30)
+				#time.sleep(30)
 			else:
 				print("VM choose to stay")
 
@@ -136,7 +136,7 @@ class Client(object):
 				except:
 					print("Login Request Socket Timed out, Retrying ...")
 					acked = False
-					time.sleep(random.randint(5, 30))
+					time.sleep(15)
 			
 			# Pause for 10min if Load changed
 			if loadChanged:
