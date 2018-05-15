@@ -17,27 +17,22 @@ class Client(object):
 		self.client_message = deepcopy(CLIENT_MESSAGE)
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.port = 10000
-		self.login = True
-		self.load = 0
 
 	def run(self):
-		# Send Client status
-		hostName, ip, mac, load = self._sendStatus()
+		# Wait 10 minutes
 		time.sleep(600)
 
 		while True:
-			# VM wakes after 300 seconds
-			wakeup_time = 300
-			print("VM wakes after = {} sec".format(wakeup_time))
-			time.sleep(wakeup_time)
+			# VM wakes every 5 minutes
+			time.sleep(300)
+
+			# Get Client data
+			hostName, ip, mac, load = self._getStatus()
 
 			# Choose action
 			action = self.rlAgent.takeAction()
 			migrate = True if action != hostName else False
 			print("migrate? = {}, action = {}".format(migrate, action))
-
-			# Update Login request
-			self.login = migrate
 
 			# Migrate
 			if(migrate):
@@ -60,7 +55,7 @@ class Client(object):
 
 			try:
 				# Send Client status
-				hostName, ip, mac, load = self._sendStatus()
+				hostName, ip, mac, load = self._getStatus()
 				
 				# Request Temperature 
 				self.client_message["request"]["login"] = False
@@ -90,58 +85,47 @@ class Client(object):
 			except:
 				print("Socket timeout")	
 
-	def _sendStatus(self):
+	def _getStatus(self):
 		# Get client data
 		hostName = getHostName()
 		ip = getHostIp(hostName)
 		mac = getVmMac()
 		load = getLoad()
 		print('VM is at: {}, on {}'.format(hostName, (ip, self.port)))
-		print('Load: {}, Load Changed: {}'.format(load, self.load != load))
 
-		# Send Login request/Load change notification
-		loadChanged = (self.load != 0) and (self.load != load)
-		if(self.login or loadChanged):
-			self.load = load
-			self.login = False
-			acked = False
-			while not acked:
-				try:
-					hostName = getHostName()
-					ip = getHostIp(hostName)
-					mac = getVmMac()
-					load = getLoad()
-					
-					# Send Request 
-					self.client_message["request"]["login"] = True
-					self.client_message["request"]["temperature"] = False
-					self.client_message["request"]["migration"] = False
-					self.client_message["vm"]["mac"] = mac
-					self.client_message["vm"]["target"] = hostName
-					self.client_message["vm"]["load"] = load
-					self.client_message["prob"]["trident1.vlab.cs.hioa.no"] = self.rlAgent.prob["trident1"]
-					self.client_message["prob"]["trident2.vlab.cs.hioa.no"] = self.rlAgent.prob["trident2"]
-					self.client_message["prob"]["trident3.vlab.cs.hioa.no"] = self.rlAgent.prob["trident3"]
-					self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
-					print("sent: {}".format(self.client_message))
+		# Send data request
+		while True:
+			try:
+				# Update client data
+				hostName = getHostName()
+				ip = getHostIp(hostName)
+				mac = getVmMac()
+				load = getLoad()
 				
-					# Receive response
-					print("waiting to receive login request")
-					self.sock.settimeout(5.0)
-					data, server = self.sock.recvfrom(1024)
-					self.sock.settimeout(None)
-					server_message = json.loads(data.decode('utf-8'))
-					print("received: {} from {}".format(server_message, server))
-					acked = True
-				except:
-					print("Login Request Socket Timed out, Retrying ...")
-					acked = False
-					time.sleep(15)
+				# Send Request 
+				self.client_message["request"]["login"] = True
+				self.client_message["request"]["temperature"] = False
+				self.client_message["request"]["migration"] = False
+				self.client_message["vm"]["mac"] = mac
+				self.client_message["vm"]["target"] = hostName
+				self.client_message["vm"]["load"] = load
+				self.client_message["prob"]["trident1.vlab.cs.hioa.no"] = self.rlAgent.prob["trident1"]
+				self.client_message["prob"]["trident2.vlab.cs.hioa.no"] = self.rlAgent.prob["trident2"]
+				self.client_message["prob"]["trident3.vlab.cs.hioa.no"] = self.rlAgent.prob["trident3"]
+				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
+				print("sent: {}".format(self.client_message))
 			
-			# Pause for 10min if Load changed
-			if loadChanged:
-				print("Load Changed, Pause for 10 minutes.")
-				time.sleep(600)
+				# Receive response
+				print("waiting to receive login request")
+				self.sock.settimeout(5.0)
+				data, server = self.sock.recvfrom(1024)
+				self.sock.settimeout(None)
+				server_message = json.loads(data.decode('utf-8'))
+				print("received: {} from {}".format(server_message, server))
+				break
+			except:
+				print("Login Request Socket Timed out, Retrying ...")
+				time.sleep(5)
 
 		return hostName, ip, mac, load
 
