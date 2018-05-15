@@ -92,21 +92,15 @@ class Client(object):
 				print("Socket timeout")	
 
 	def _getClientData(self):
-		# Get client data
-		self.client_data["hostName"] = getHostName()
-		self.client_data["ip"] = getHostIp(self.client_data["hostName"])
-		self.client_data["mac"] = getVmMac()
-		self.client_data["load"] = getLoad()
-		print('VM is at: {}, on {}'.format(self.client_data["hostName"], (self.client_data["ip"], self.port)))
-
 		# Send data request
 		while True:
 			try:
-				# Update client data
+				# Get client data
 				self.client_data["hostName"] = getHostName()
 				self.client_data["ip"] = getHostIp(self.client_data["hostName"])
 				self.client_data["mac"] = getVmMac()
 				self.client_data["load"] = getLoad()
+				print('VM is at: {}, on {}'.format(self.client_data["hostName"], (self.client_data["ip"], self.port)))
 				
 				# Send Request 
 				self.client_message["request"]["login"] = True

@@ -60,7 +60,6 @@ def getVmMac():
 def getLoad():
 	try:
 		load = subprocess.check_output("sudo ps | grep stress-ng | head -1 | awk '{print $NF}'", shell=True).decode('UTF-8').rstrip("\n")
-		print("Load = {}".format(load))
 		return int(load)
 	except subprocess.CalledProcessError as e:
 		print("ERROR: : {reason}".format(reason=e))
