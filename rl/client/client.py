@@ -78,7 +78,7 @@ class Client(object):
 				# Receive response
 				print("waiting to receive")
 				self.sock.settimeout(5.0)
-				data, server = self.sock.recvfrom(512)
+				data, server = self.sock.recvfrom(1024)
 				self.sock.settimeout(None)
 				server_message = json.loads(data.decode('utf-8'))
 				print("received: {} from {}".format(server_message, server))
@@ -128,7 +128,7 @@ class Client(object):
 					# Receive response
 					print("waiting to receive login request")
 					self.sock.settimeout(5.0)
-					data, server = self.sock.recvfrom(512)
+					data, server = self.sock.recvfrom(1024)
 					self.sock.settimeout(None)
 					server_message = json.loads(data.decode('utf-8'))
 					print("received: {} from {}".format(server_message, server))
