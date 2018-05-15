@@ -14,11 +14,20 @@ from rl import RlAgent
 class Client(object):
 	def __init__(self):
 		self.rlAgent = RlAgent()
-		self.client_message = deepcopy(CLIENT_MESSAGE)
 		self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 		self.port = 10000
+		self.client_message = deepcopy(CLIENT_MESSAGE)
+		self.client_data = {
+			"hostName" : "",
+			"ip" : "",
+			"mac" : "",
+			"load" : 0
+		}
 
 	def run(self):
+		# Get Client data
+		self._getClientData()
+
 		# Wait 10 minutes
 		time.sleep(600)
 
@@ -26,12 +35,9 @@ class Client(object):
 			# VM wakes every 5 minutes
 			time.sleep(300)
 
-			# Get Client data
-			hostName, ip, mac, load = self._getStatus()
-
 			# Choose action
 			action = self.rlAgent.takeAction()
-			migrate = True if action != hostName else False
+			migrate = True if action != self.client_data["hostName"] else False
 			print("migrate? = {}, action = {}".format(migrate, action))
 
 			# Migrate
@@ -39,13 +45,13 @@ class Client(object):
 				self.client_message["request"]["login"] = False
 				self.client_message["request"]["migration"] = True
 				self.client_message["request"]["temperature"] = False
-				self.client_message["vm"]["mac"] = mac
+				self.client_message["vm"]["mac"] = self.client_data["mac"]
 				self.client_message["vm"]["target"] = action
-				self.client_message["vm"]["load"] = load
+				self.client_message["vm"]["load"] = self.client_data["load"]
 				self.client_message["prob"]["trident1.vlab.cs.hioa.no"] = self.rlAgent.prob["trident1"]
 				self.client_message["prob"]["trident2.vlab.cs.hioa.no"] = self.rlAgent.prob["trident2"]
 				self.client_message["prob"]["trident3.vlab.cs.hioa.no"] = self.rlAgent.prob["trident3"]
-				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
+				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (self.client_data["ip"], self.port))
 				print("sent: {} to {}".format(self.client_message, action))
 				
 				# Sleep for 30 sec, for migration to complete
@@ -55,19 +61,19 @@ class Client(object):
 
 			try:
 				# Send Client status
-				hostName, ip, mac, load = self._getStatus()
+				self._getClientData()
 				
 				# Request Temperature 
 				self.client_message["request"]["login"] = False
 				self.client_message["request"]["temperature"] = True
 				self.client_message["request"]["migration"] = False
-				self.client_message["vm"]["mac"] = mac
-				self.client_message["vm"]["target"] = hostName
-				self.client_message["vm"]["load"] = load
+				self.client_message["vm"]["mac"] = self.client_data["mac"]
+				self.client_message["vm"]["target"] = self.client_data["hostName"]
+				self.client_message["vm"]["load"] = self.client_data["load"]
 				self.client_message["prob"]["trident1.vlab.cs.hioa.no"] = self.rlAgent.prob["trident1"]
 				self.client_message["prob"]["trident2.vlab.cs.hioa.no"] = self.rlAgent.prob["trident2"]
 				self.client_message["prob"]["trident3.vlab.cs.hioa.no"] = self.rlAgent.prob["trident3"]
-				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
+				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (self.client_data["ip"], self.port))
 				print("sent: {}".format(self.client_message))
 
 				# Receive response
@@ -85,34 +91,34 @@ class Client(object):
 			except:
 				print("Socket timeout")	
 
-	def _getStatus(self):
+	def _getClientData(self):
 		# Get client data
-		hostName = getHostName()
-		ip = getHostIp(hostName)
-		mac = getVmMac()
-		load = getLoad()
-		print('VM is at: {}, on {}'.format(hostName, (ip, self.port)))
+		self.client_data["hostName"] = getHostName()
+		self.client_data["ip"] = getHostIp(self.client_data["hostName"])
+		self.client_data["mac"] = getVmMac()
+		self.client_data["load"] = getLoad()
+		print('VM is at: {}, on {}'.format(self.client_data["hostName"], (self.client_data["ip"], self.port)))
 
 		# Send data request
 		while True:
 			try:
 				# Update client data
-				hostName = getHostName()
-				ip = getHostIp(hostName)
-				mac = getVmMac()
-				load = getLoad()
+				self.client_data["hostName"] = getHostName()
+				self.client_data["ip"] = getHostIp(self.client_data["hostName"])
+				self.client_data["mac"] = getVmMac()
+				self.client_data["load"] = getLoad()
 				
 				# Send Request 
 				self.client_message["request"]["login"] = True
 				self.client_message["request"]["temperature"] = False
 				self.client_message["request"]["migration"] = False
-				self.client_message["vm"]["mac"] = mac
-				self.client_message["vm"]["target"] = hostName
-				self.client_message["vm"]["load"] = load
+				self.client_message["vm"]["mac"] = self.client_data["mac"]
+				self.client_message["vm"]["target"] = self.client_data["hostName"]
+				self.client_message["vm"]["load"] = self.client_data["load"]
 				self.client_message["prob"]["trident1.vlab.cs.hioa.no"] = self.rlAgent.prob["trident1"]
 				self.client_message["prob"]["trident2.vlab.cs.hioa.no"] = self.rlAgent.prob["trident2"]
 				self.client_message["prob"]["trident3.vlab.cs.hioa.no"] = self.rlAgent.prob["trident3"]
-				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (ip, self.port))
+				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (self.client_data["ip"], self.port))
 				print("sent: {}".format(self.client_message))
 			
 				# Receive response
@@ -126,8 +132,6 @@ class Client(object):
 			except:
 				print("Login Request Socket Timed out, Retrying ...")
 				time.sleep(5)
-
-		return hostName, ip, mac, load
 
 ''' 
 	Main
