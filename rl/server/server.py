@@ -94,7 +94,7 @@ class Server(object):
 		while True:
 			logging.debug("---------------------- handlePlot ---------------")
 			logging.info("waiting to receive server plot data request")
-			data, address = self.plot_socket.recvfrom(512)
+			data, address = self.plot_socket.recvfrom(1024)
 
 			# Server plot data
 			logging.info("Received server plot data request")
@@ -118,7 +118,7 @@ class Server(object):
 			
 			# Get VM message
 			logging.debug("Waiting to receive client message")
-			data, address = self.client_socket.recvfrom(512)
+			data, address = self.client_socket.recvfrom(1024)
 			client_message = json.loads(data.decode('utf-8'))
 			logging.info("Received {} from {}".format(client_message, address))
 
