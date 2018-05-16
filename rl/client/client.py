@@ -28,12 +28,12 @@ class Client(object):
 		# Get Client data
 		self._getClientData()
 
-		# Wait 10 minutes
-		time.sleep(600)
+		# Wait 5 minutes
+		time.sleep(300)
 
 		while True:
 			# VM wakes randomly
-			rand_time = random.randint(120, 420)
+			rand_time = random.randint(60, 180)
 			print("Rand Time = {}".format(rand_time))
 			time.sleep(rand_time)
 

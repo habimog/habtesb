@@ -25,20 +25,18 @@ class RlAgent():
     def takeAction(self): 
         r = random.uniform(0.0, 1.0) 
         print("random number picked from uniform distribution: {}".format(r))
-        
-        sorted_prob = [(k, self.prob[k]) for k in sorted(self.prob, key=self.prob.get, reverse=True)]
-        print("Sorted probabilities: {}".format(sorted_prob))
 
-        if r < sorted_prob[0][1]:
-            action = self.actions[sorted_prob[0][0]]
-        elif r <  sorted_prob[0][1] + sorted_prob[1][1]:
-            action = self.actions[sorted_prob[1][0]]
+        print("probabilities: {}".format(self.prob))
+
+        if r <= self.prob["trident1"]:
+            action = self.actions["trident1"]
+        elif r <=  self.prob["trident1"] + self.prob["trident2"]:
+            action = self.actions["trident2"]
         else:
-            action = self.actions[sorted_prob[2][0]]
+            action = self.actions["trident3"]
 
         print("Action choosen: {}".format(action))
         return action
-
 
     ''' Learn
         @param action: action choosen
@@ -73,10 +71,3 @@ class RlAgent():
     def _getFeedback(self, maxTemp, hostTemp):
         feedback = 1.0 - (hostTemp / maxTemp)
         return feedback if feedback >= 0.0 else 0.0
-
-'''
-if __name__ == "__main__":
-    agent = RlAgent()
-    action = agent.takeAction()
-    agent.learn(action, 300.0, 100.0)
-'''
