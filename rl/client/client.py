@@ -32,8 +32,10 @@ class Client(object):
 		time.sleep(600)
 
 		while True:
-			# VM wakes every 5 minutes
-			time.sleep(300)
+			# VM wakes randomly
+			rand_time = random.randint(120, 420)
+			print("Rand Time = {}".format(rand_time))
+			time.sleep(rand_time)
 
 			# Choose action
 			action = self.rlAgent.takeAction()
@@ -54,8 +56,8 @@ class Client(object):
 				self.sock.sendto(json.dumps(self.client_message).encode('utf-8'), (self.client_data["ip"], self.port))
 				print("sent: {} to {}".format(self.client_message, action))
 				
-				# Sleep for 30 sec, for migration to complete
-				#time.sleep(30)
+				# Sleep for 60 sec, for migration to complete
+				time.sleep(60)
 			else:
 				print("VM choose to stay")
 
@@ -78,7 +80,7 @@ class Client(object):
 
 				# Receive response
 				print("waiting to receive")
-				self.sock.settimeout(5.0)
+				self.sock.settimeout(15.0)
 				data, server = self.sock.recvfrom(1024)
 				self.sock.settimeout(None)
 				server_message = json.loads(data.decode('utf-8'))
@@ -117,7 +119,7 @@ class Client(object):
 			
 				# Receive response
 				print("waiting to receive login request")
-				self.sock.settimeout(5.0)
+				self.sock.settimeout(15.0)
 				data, server = self.sock.recvfrom(1024)
 				self.sock.settimeout(None)
 				server_message = json.loads(data.decode('utf-8'))
@@ -125,7 +127,7 @@ class Client(object):
 				break
 			except:
 				print("Login Request Socket Timed out, Retrying ...")
-				time.sleep(5)
+				time.sleep(30)
 
 ''' 
 	Main
