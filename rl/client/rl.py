@@ -26,8 +26,8 @@ class RlAgent():
         print("pdf: {}".format(self.prob))
         
         choices = []
-            for x in range(0, 5):
-                choice.append(numpy.random.choice(["trinden1", "trident2", "trident3"],
+        for it in range(0, 5):
+            choice.append(numpy.random.choice(["trinden1", "trident2", "trident3"],
                                      p=[self.prob["trident1"], self.prob["trident2"], self.prob["trident3"]]))
         print("Servers choosen: {}".format(choices))
 
