@@ -10,9 +10,9 @@ class RlAgent():
     def __init__(self):
         self.lamda = 0.1 # Learning rate
         self.prob = {
-            "trident1" : 1.0 / 3.0, 
-            "trident2" : 1.0 / 3.0, 
-            "trident3" : 1.0 / 3.0
+            "trident1" : 0.4, 
+            "trident2" : 0.25, 
+            "trident3" : 0.35
         }
         self.actions = {
             "trident1" : "trident1.vlab.cs.hioa.no", 
