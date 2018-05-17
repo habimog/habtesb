@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import random
+import numpy
 
 ''' RL Agent
 '''
@@ -23,19 +23,18 @@ class RlAgent():
     ''' Choose Action 
     '''
     def takeAction(self): 
-        r = random.uniform(0.0, 1.0) 
-        print("random number picked from uniform distribution: {}".format(r))
+        print("pdf: {}".format(self.prob))
+        
+        choices = []
+            for x in range(0, 5):
+                choice.append(numpy.random.choice(["trinden1", "trident2", "trident3"],
+                                     p=[self.prob["trident1"], self.prob["trident2"], self.prob["trident3"]]))
+        print("Servers choosen: {}".format(choices))
 
-        print("probabilities: {}".format(self.prob))
-
-        if r <= self.prob["trident1"]:
-            action = self.actions["trident1"]
-        elif r <=  self.prob["trident1"] + self.prob["trident2"]:
-            action = self.actions["trident2"]
-        else:
-            action = self.actions["trident3"]
-
+        choice = max(set(choices), key=choices.count)
+        action = self.actions[choice]
         print("Action choosen: {}".format(action))
+        
         return action
 
     ''' Learn
