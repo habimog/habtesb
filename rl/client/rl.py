@@ -10,9 +10,9 @@ class RlAgent():
     def __init__(self):
         self.lamda = 0.1 # Learning rate
         self.prob = {
-            "trident1" : 0.4, 
-            "trident2" : 0.25, 
-            "trident3" : 0.35
+            "trident1" : 1.0 / 3.0, 
+            "trident2" : 1.0 / 3.0, 
+            "trident3" : 1.0 / 3.0
         }
         self.actions = {
             "trident1" : "trident1.vlab.cs.hioa.no", 
@@ -70,8 +70,10 @@ class RlAgent():
     def _getFeedback(self, maxTemp, hostTemp):
         feedback = 1.0 - (hostTemp / maxTemp)
         return feedback if feedback >= 0.0 else 0.0
-    
-    #if __name__ == "__main__":
-        #r=RlAgent()
-        #action=r.takeAction()
-        #r.learn(action, 300, 100)
+   
+'''
+if __name__ == "__main__":
+    rl = RlAgent()
+    action = rl.takeAction()
+    rl.learn(action, 300, 100)
+'''
