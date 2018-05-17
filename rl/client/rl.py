@@ -27,7 +27,7 @@ class RlAgent():
         
         choices = []
         for it in range(0, 5):
-            choices.append(numpy.random.choice(["trinden1", "trident2", "trident3"],
+            choices.append(numpy.random.choice(["trident1", "trident2", "trident3"],
                                                p=[self.prob["trident1"], self.prob["trident2"], self.prob["trident3"]]))
         print("Servers choosen: {}".format(choices))
 
@@ -70,3 +70,8 @@ class RlAgent():
     def _getFeedback(self, maxTemp, hostTemp):
         feedback = 1.0 - (hostTemp / maxTemp)
         return feedback if feedback >= 0.0 else 0.0
+    
+    #if __name__ == "__main__":
+        #r=RlAgent()
+        #action=r.takeAction()
+        #r.learn(action, 300, 100)
