@@ -27,8 +27,8 @@ class RlAgent():
         
         choices = []
         for it in range(0, 5):
-            choice.append(numpy.random.choice(["trinden1", "trident2", "trident3"],
-                                     p=[self.prob["trident1"], self.prob["trident2"], self.prob["trident3"]]))
+            choices.append(numpy.random.choice(["trinden1", "trident2", "trident3"],
+                                               p=[self.prob["trident1"], self.prob["trident2"], self.prob["trident3"]]))
         print("Servers choosen: {}".format(choices))
 
         choice = max(set(choices), key=choices.count)
