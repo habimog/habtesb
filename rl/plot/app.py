@@ -206,12 +206,12 @@ def update():
 				str(vm['prob']['trident1.vlab.cs.hioa.no']) + "," + \
 				str(vm['prob']['trident2.vlab.cs.hioa.no']) + "," + \
 				str(vm['prob']['trident3.vlab.cs.hioa.no']) + "\n"
-			csv_prob['vm' + str(vm["vm"])].write(row)
+			csv_prob[str(vm["vm"])].write(row)
 
 			prob_data = dict(x=[x], trident1=[vm['prob']['trident1.vlab.cs.hioa.no']],
 					trident2=[vm['prob']['trident2.vlab.cs.hioa.no']],
 					trident3=[vm['prob']['trident3.vlab.cs.hioa.no']])
-			probTemp['vm' + str(vm["vm"])].stream(prob_data, rollover=400)	
+			probTemp[str(vm["vm"])].stream(prob_data, rollover=400)	
 
 # Add a periodic callback to be run every 5 mins
 curdoc().add_root(figTemp)
