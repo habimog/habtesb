@@ -120,7 +120,7 @@ figLoads.yaxis.axis_label_text_font_size = "15pt"
 probTemp = {}
 figProbs = {}
 csv_prob = {}
-for vm in range(0, 12):
+for vm in range(1, 13):
 	probTemp['vm' + str(vm)] = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 	figProbs['vm' + str(vm)] = figure(x_axis_type="datetime", plot_width=1200, plot_height=500,
 				x_axis_label = "@timestamp per 5 minutes", y_axis_label = "Probability",
