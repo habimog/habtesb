@@ -217,5 +217,5 @@ def update():
 curdoc().add_root(figTemp)
 curdoc().add_root(figVms)
 curdoc().add_root(figLoads)
-for vm in range(0, 12): curdoc().add_root(figProbs['vm' + str(vm)])
+for vm in range(1, 13): curdoc().add_root(figProbs['vm' + str(vm)])
 curdoc().add_periodic_callback(update, 300000)
