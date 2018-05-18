@@ -41,6 +41,11 @@ figTemp.yaxis.major_label_text_font_size = "15pt"
 figTemp.xaxis.axis_label_text_font_size = "15pt"
 figTemp.yaxis.axis_label_text_font_size = "15pt"
 
+# Open a file to write temperature datas
+csv_temp = open('temperature.csv', 'w')
+columnTitleRow = "time, trident1, trident2, trident3\n"
+csv_temp.write(columnTitleRow)
+
 # Plot VMs Numbers
 sourceVms = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
 figVms = figure(x_axis_type="datetime", plot_width=1200, plot_height=400,
@@ -111,40 +116,39 @@ figLoads.yaxis.major_label_text_font_size = "15pt"
 figLoads.xaxis.axis_label_text_font_size = "15pt"
 figLoads.yaxis.axis_label_text_font_size = "15pt"
 
-# Open a file to write temperature datas
-csv_temp = open('temperature.csv', 'w')
-columnTitleRow = "time, trident1, trident2, trident3\n"
-csv_temp.write(columnTitleRow)
-
-# Open a file to write probabilities datas
-csv_prob = open('probability.csv', 'w')
-columnTitleRow = "time, trident1, trident2, trident3\n"
-csv_prob.write(columnTitleRow)
-
 # Plot VMs Probabilities
-probTemp = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
-figProbs = figure(x_axis_type="datetime", plot_width=1200, plot_height=500,
-			x_axis_label = "@timestamp per 5 minutes", y_axis_label = "Probability",
-			y_range=(0, 1), title="VM Probability", tools=TOOLS)
+probTemp = {}
+figProbs = {}
+csv_prob = {}
+for vm in range(0, 12):
+	probTemp['vm' + str(vm)] = ColumnDataSource(data=dict(x=[], trident1=[], trident2=[], trident3=[]))
+	figProbs['vm' + str(vm)] = figure(x_axis_type="datetime", plot_width=1200, plot_height=500,
+				x_axis_label = "@timestamp per 5 minutes", y_axis_label = "Probability",
+				y_range=(0, 1), title="VM Probability", tools=TOOLS)
 
-figProbs.circle_cross(source=probTemp, x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
-figProbs.line(source=probTemp, x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
+	figProbs['vm' + str(vm)].circle_cross(source=probTemp['vm' + str(vm)], x="x", y="trident1", legend=value("trident1"), size=7, alpha=.85, color="peru")
+	figProbs['vm' + str(vm)].line(source=probTemp['vm' + str(vm)], x="x", y="trident1", legend=value("trident1"), alpha=.85, color="peru")
 
-figProbs.asterisk(source=probTemp, x="x", y="trident2", legend=value("trident2"), size=7, alpha=.85, color="blue")
-figProbs.line(source=probTemp, x="x", y="trident2", legend=value("trident2"), alpha=.85, color="blue")
+	figProbs['vm' + str(vm)].asterisk(source=probTemp['vm' + str(vm)], x="x", y="trident2", legend=value("trident2"), size=7, alpha=.85, color="blue")
+	figProbs['vm' + str(vm)].line(source=probTemp['vm' + str(vm)], x="x", y="trident2", legend=value("trident2"), alpha=.85, color="blue")
 
-figProbs.inverted_triangle(source=probTemp, x="x", y="trident3", legend=value("trident3"), size=7, alpha=.85, color="red")
-figProbs.line(source=probTemp, x="x", y="trident3", legend=value("trident3"), alpha=.85, color="red")
+	figProbs['vm' + str(vm)].inverted_triangle(source=probTemp['vm' + str(vm)], x="x", y="trident3", legend=value("trident3"), size=7, alpha=.85, color="red")
+	figProbs['vm' + str(vm)].line(source=probTemp['vm' + str(vm)], x="x", y="trident3", legend=value("trident3"), alpha=.85, color="red")
 
-figProbs.xaxis.formatter = formatter
-figProbs.legend.orientation = "horizontal"
-figProbs.legend.location = "top_left"
-figProbs.legend.label_text_font_size = '15pt'
-figProbs.title.text_font_size = '15pt'
-figProbs.xaxis.major_label_text_font_size = "15pt"
-figProbs.yaxis.major_label_text_font_size = "15pt"
-figProbs.xaxis.axis_label_text_font_size = "15pt"
-figProbs.yaxis.axis_label_text_font_size = "15pt"		
+	figProbs['vm' + str(vm)].xaxis.formatter = formatter
+	figProbs['vm' + str(vm)].legend.orientation = "horizontal"
+	figProbs['vm' + str(vm)].legend.location = "top_left"
+	figProbs['vm' + str(vm)].legend.label_text_font_size = '15pt'
+	figProbs['vm' + str(vm)].title.text_font_size = '15pt'
+	figProbs['vm' + str(vm)].xaxis.major_label_text_font_size = "15pt"
+	figProbs['vm' + str(vm)].yaxis.major_label_text_font_size = "15pt"
+	figProbs['vm' + str(vm)].xaxis.axis_label_text_font_size = "15pt"
+	figProbs['vm' + str(vm)].yaxis.axis_label_text_font_size = "15pt"	
+
+	# Open a file to write probabilities datas
+	csv_prob['vm' + str(vm)] = open('vm' + str(vm+1) + 'probability.csv', 'w')
+	columnTitleRow = "time, trident1, trident2, trident3\n"
+	csv_prob['vm' + str(vm)].write(columnTitleRow)	
 
 # Periodic callback
 def update():
@@ -191,29 +195,27 @@ def update():
 		sourceLoads.stream(load_data, rollover=len(loads))
 
 		# Update VM Probabilities
-		trident1VMs = data["trident1.vlab.cs.hioa.no"]["vms"] if "trident1.vlab.cs.hioa.no" in data else []
-		trident2VMs = data["trident2.vlab.cs.hioa.no"]["vms"] if "trident2.vlab.cs.hioa.no" in data else []	
-		trident3VMs = data["trident3.vlab.cs.hioa.no"]["vms"] if "trident3.vlab.cs.hioa.no" in data else []	
+		vms = []
+		vms += data["trident1.vlab.cs.hioa.no"]["vms"] if "trident1.vlab.cs.hioa.no" in data else []
+		vms += data["trident2.vlab.cs.hioa.no"]["vms"] if "trident2.vlab.cs.hioa.no" in data else []	
+		vms += data["trident3.vlab.cs.hioa.no"]["vms"] if "trident3.vlab.cs.hioa.no" in data else []	
 
-		for vms in [trident1VMs, trident2VMs, trident3VMs]:
-			if vms and vms[-1]["vm"] == "vm1":
-				vm = vms[-1]
-				# Write probabilities datas
-				row = x.strftime("%H:%M:%S") + "," + \
-					str(vm['prob']['trident1.vlab.cs.hioa.no']) + "," + \
-					str(vm['prob']['trident2.vlab.cs.hioa.no']) + "," + \
-					str(vm['prob']['trident3.vlab.cs.hioa.no']) + "\n"
-				csv_prob.write(row)
+		for vm in vms:
+			# Write probabilities datas
+			row = x.strftime("%H:%M:%S") + "," + \
+				str(vm['prob']['trident1.vlab.cs.hioa.no']) + "," + \
+				str(vm['prob']['trident2.vlab.cs.hioa.no']) + "," + \
+				str(vm['prob']['trident3.vlab.cs.hioa.no']) + "\n"
+			csv_prob['vm' + str(vm["vm"])].write(row)
 
-				prob_data = dict(x=[x], trident1=[vm['prob']['trident1.vlab.cs.hioa.no']],
-						trident2=[vm['prob']['trident2.vlab.cs.hioa.no']],
-						trident3=[vm['prob']['trident3.vlab.cs.hioa.no']])
-				probTemp.stream(prob_data, rollover=400)	
-
+			prob_data = dict(x=[x], trident1=[vm['prob']['trident1.vlab.cs.hioa.no']],
+					trident2=[vm['prob']['trident2.vlab.cs.hioa.no']],
+					trident3=[vm['prob']['trident3.vlab.cs.hioa.no']])
+			probTemp['vm' + str(vm["vm"])].stream(prob_data, rollover=400)	
 
 # Add a periodic callback to be run every 5 mins
 curdoc().add_root(figTemp)
 curdoc().add_root(figVms)
 curdoc().add_root(figLoads)
-curdoc().add_root(figProbs)
+for vm in range(0, 12): curdoc().add_root(figProbs['vm' + str(vm)])
 curdoc().add_periodic_callback(update, 300000)

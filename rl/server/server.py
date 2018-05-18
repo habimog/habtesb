@@ -97,7 +97,7 @@ class Server(object):
 		while True:
 			logging.debug("---------------------- handlePlot ---------------")
 			logging.info("waiting to receive server plot data request")
-			data, address = self.plot_socket.recvfrom(1024)
+			data, address = self.plot_socket.recvfrom(4096)
 			logging.info("Received server plot data request")
 
 			# Server plot data
@@ -110,7 +110,7 @@ class Server(object):
 				self.my_mutex.acquire()
 				for vm, value in self.vms.items():
 					plotData["vmLoads"][str(value["load"])] += 1
-					if vm == "vm1": plotData["vms"].append(self.vms[vm])
+					plotData["vms"].append(self.vms[vm])
 				self.my_mutex.release()
 
 				sent = self.plot_socket.sendto(json.dumps(plotData).encode('utf-8'), address)
