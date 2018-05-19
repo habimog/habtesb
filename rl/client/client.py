@@ -62,7 +62,7 @@ class Client(object):
 				print("VM choose to stay")
 
 			try:
-				# Send Client status
+				# Update Client status
 				self._getClientData()
 				
 				# Request Temperature 
@@ -94,7 +94,7 @@ class Client(object):
 				print("Socket timeout")	
 
 	def _getClientData(self):
-		# Send data request
+		# Send client data request
 		while True:
 			try:
 				# Get client data
