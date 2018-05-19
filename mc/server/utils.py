@@ -40,6 +40,7 @@ CLIENT_MESSAGE = {
 	}
 }
 
+# delta temperature
 class DeltaTemp():
 	def __init__(self):
 		self._started_at = datetime.now()
